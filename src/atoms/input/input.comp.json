@@ -1,0 +1,20 @@
+{
+  "name": "Input",
+  "type": "atom",
+  "variables": {
+    "type": { "type": "string", "default": "text" },
+    "name": { "type": "string", "default": "email" },
+    "id": { "type": "string", "default": "input-email" },
+    "placeholder": { "type": "string", "default": "Entrez votre email" },
+    "size": { "type": "string", "enum": ["sm", "md", "lg"], "default": "md" },
+    "disabled": { "type": "boolean", "default": false }
+  },
+  "twig": "<input type=\"{{ type }}\" name=\"{{ name }}\" id=\"{{ id }}\" class=\"input input--{{ size }}\" placeholder=\"{{ placeholder }}\" {% if disabled %}disabled{% endif %} />",
+  "scss": ".input {\n  padding: $spacing-sm;\n  border: 1px solid $color-border;\n  border-radius: $radius;\n  font-size: $font-size-base;\n  &--sm { font-size: 0.875rem; }\n  &--md { font-size: 1rem; }\n  &--lg { font-size: 1.125rem; }\n  &:disabled { background-color: $color-disabled-bg; cursor: not-allowed; }\n}",
+  "tokensUsed": ["spacing.sm", "color.border", "radius", "font-size.base", "color.disabled-bg"],
+  "variants": [
+    { "name": "Default", "props": {} },
+    { "name": "Large", "props": { "size": "lg" } },
+    { "name": "Disabled", "props": { "disabled": true } }
+  ]
+}

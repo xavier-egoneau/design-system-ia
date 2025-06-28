@@ -1,0 +1,12 @@
+<header class="site-header">
+  <div class="site-header__logo">
+    <img src="{{ logo }}" alt="Logo" />
+  </div>
+  <nav class="site-header__nav">
+    <ul>
+      {% for link in nav %}
+        <li><a href="{{ link.href }}">{{ link.label }}</a></li>
+      {% endfor %}
+    </ul>
+  </nav>
+</header>

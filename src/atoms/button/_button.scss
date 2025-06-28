@@ -1,0 +1,53 @@
+@use '../../tokens/variables' as *;
+@use 'sass:color';
+
+.a-button {
+  padding: $spacing-sm $spacing-md;
+  border: none;
+  border-radius: $radius;
+  font-family: inherit;
+  font-size: $font-size-base;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+  
+  // Variants de couleur
+  &--primary { 
+    background: $color-primary; 
+    color: white;
+    
+    &:hover:not(:disabled) {
+      background: color.adjust($color-primary, $lightness: -10%);
+    }
+  }
+  
+  &--secondary { 
+    background: $color-secondary; 
+    color: white;
+    
+    &:hover:not(:disabled) {
+      background: color.adjust($color-secondary, $lightness: -10%);
+    }
+  }
+  
+  // Tailles
+  &--sm { 
+    padding: $spacing-xs $spacing-sm;
+    font-size: 0.875rem;
+  }
+  
+  &--lg { 
+    padding: $spacing-md $spacing-lg;
+    font-size: 1.125rem;
+  }
+  
+  // États
+  &:disabled {
+    background: $color-disabled-bg !important;
+    color: $color-secondary;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}

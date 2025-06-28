@@ -1,0 +1,13 @@
+{# Wrapper simple pour les démos de composants #}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>{{ title|default('Demo') }}</title>
+  <link rel="stylesheet" href="/css/main.css" />
+</head>
+<body style="padding:2rem;font-family:sans-serif">
+  <header><h1>{{ title }}</h1></header>
+  <main>{{ content|raw }}</main>
+</body>
+</html>

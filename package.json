@@ -1,0 +1,46 @@
+{
+  "name": "design-system",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "clean": "gulp clean",
+    "build": "gulp build --prod",
+    "dev": "concurrently \"node tasks/api-server.js\" \"gulp\"",
+    "dev:verbose": "concurrently \"node tasks/api-server.js\" \"gulp serveDev\"",
+    "api": "node tasks/api-server.js",
+    "start": "npm run dev",
+    "test:components": "node scripts/test-components.js"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15",
+    "autoprefixer": "^10",
+    "browser-sync": "^2",
+    "concurrently": "^8",
+    "cssnano": "^6",
+    "del": "^7",
+    "express": "^4",
+    "fs-extra": "^11",
+    "glob": "^10",
+    "gulp": "^4",
+    "gulp-postcss": "^10",
+    "gulp-sass": "^6",
+    "gulp-twing": "^4.0.0",
+    "http-proxy-middleware": "^2",
+    "postcss": "^8",
+    "sass": "^1.70",
+    "twing": "^5.0.2"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "description": "Design System with interactive component playground and AI collaboration features",
+  "keywords": [
+    "design-system",
+    "components",
+    "twig",
+    "sass",
+    "atomic-design",
+    "playground",
+    "ai-collaboration"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Component",
+  "type": "object",
+  "required": ["name", "category", "twig", "scss", "props", "variants"],
+  "properties": {
+    "name": { "type": "string" },
+    "category": { "enum": ["atom", "molecule", "organism", "page"] },
+    "twig": { "type": "string" },
+    "scss": { "type": "string" },
+    "props": { "type": "object" },
+    "variants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "props"],
+        "properties": {
+          "id": { "type": "string" },
+          "props": { "type": "object" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+@use '../../tokens/variables' as *;
+ 
+.form-group {
+  margin-bottom: $spacing-md;
+
+  &__label {
+    display: block;
+    margin-bottom: $spacing-xs;
+    font-weight: bold;
+  }
+
+  &__error {
+    color: $color-error;
+    font-size: 0.875rem;
+    margin-top: $spacing-xs;
+  }
+}
