@@ -10,8 +10,8 @@ import { serve }          from './tasks/serve.js';
 export const build = gulp.series(
   clean,
   sassIndex,
-  gulp.parallel(styles, templates, demos),   // ✅ une seule variable
-  buildIndexes
+  gulp.parallel(styles, templates, demos),
+  buildIndexes  // ✅ Inclut maintenant l'interface IA automatiquement
 );
 
 export default gulp.series(build, serve);
