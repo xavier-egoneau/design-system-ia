@@ -1,17 +1,8 @@
 {
-  "name": "mon-projet-design-system",
+  "name": "mon-design-system",
   "version": "1.0.0",
-  "description": "Projet utilisant le design system avec framework CSS",
-  "main": "main.scss",
-  "scripts": {
-    "install-framework": "npm install",
-    "build-framework": "echo 'Build framework si nécessaire'"
-  },
+  "description": "Design system avec Bootstrap 5",
   "dependencies": {
-    "@gouvfr/dsfr": "^1.10.1"
-  },
-  "devDependencies": {},
-  "keywords": ["design-system", "dsfr", "composants"],
-  "author": "Équipe Design System",
-  "license": "MIT"
+    "bootstrap": "^5.3.2"
+  }
 }

@@ -1,0 +1,4 @@
+/* Bootstrap (local) */
+@import 'src/app/node_modules/bootstrap/dist/css/bootstrap.min.css';
+
+.debug-framework::before { content: "Framework: Bootstrap (local) ✅"; }

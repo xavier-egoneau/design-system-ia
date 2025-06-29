@@ -10,6 +10,12 @@ export const paths = {
   appGenFile: 'src/app/_generated.scss',
   appJsonAll: 'src/app/**/*.json',
   
+  // 🆕 ASSETS - Nouveau
+  appAssets: 'src/app/assets/**/*',
+  assetsImages: 'src/app/assets/images/**/*',
+  assetsFonts: 'src/app/assets/fonts/**/*',
+  assetsIcons: 'src/app/assets/icons/**/*',
+  
   // Points d'entrée système (à la racine de src)
   scssEntry: 'src/main.scss',              // Point d'entrée Gulp
   
@@ -21,6 +27,7 @@ export const paths = {
   
   // Build
   build: 'public',
+  buildAssets: 'public/assets',  // 🆕 ASSETS BUILD
   
   // Twing root (pour les namespaces)
   twingRoot: path.resolve('src/app')

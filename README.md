@@ -1,366 +1,390 @@
-# Design System avec Interface IA
+# Design System avec Détection Automatique des Frameworks
 
-Un design system moderne avec support pour l'import automatique de composants générés par l'intelligence artificielle.
+Un design system moderne qui s'adapte automatiquement au framework CSS de votre choix, avec support pour l'import automatique de composants générés par l'IA.
 
-## 🚀 Fonctionnalités
+## 🌟 Nouveautés v0.3.0
 
-### ✨ **Nouveauté : Import IA Automatique**
-- **Interface web intuitive** pour importer des composants en masse
-- **Parser intelligent** d'artifacts markdown générés par l'IA
-- **Création automatique** de tous les fichiers (tokens, composants, styles)
-- **Feedback temps réel** avec progress bar et validation
-- **Rebuild automatique** du design system
+### ✨ **Détection Automatique des Frameworks**
+- **Détection intelligente** : Bootstrap, DSFR, Tailwind, Bulma, Foundation
+- **Configuration zéro** : CSS et JavaScript intégrés automatiquement
+- **Changement à chaud** : Switch entre frameworks sans reconfiguration
 
-### 🎨 **Design System Classique**
-- Architecture atomique (Atoms → Molecules → Organisms → Pages)
-- Templates Twig avec namespaces
-- Compilation Sass avec design tokens
-- Playground interactif pour chaque composant
-- Documentation auto-générée
+### 🚀 **Initialisation Express**
+```bash
+# Projet Bootstrap en 30 secondes
+npm run init:bootstrap
 
-## 📁 Structure du projet
+# Projet DSFR (État français)
+npm run init:dsfr
 
-```
-├── src/
-│   ├── atoms/           # Composants de base
-│   ├── molecules/       # Combinaisons d'atoms
-│   ├── organisms/       # Sections complexes
-│   ├── pages/           # Templates de votre projet
-│   ├── tokens/          # Design tokens (variables Sass)
-│   └── main.scss        # Point d'entrée Sass
-├── tasks/               # Tâches Gulp
-├── public/              # Build généré
-│   ├── index.html       # 🌟 Interface IA (auto-générée)
-│   ├── atoms/           # Démos des atoms
-│   ├── molecules/       # Démos des molecules
-│   ├── organisms/       # Démos des organisms
-│   ├── pages/           # Pages compilées
-│   ├── css/main.css     # CSS compilé
-│   ├── ai-guide.md      # 🤖 Guide pour l'IA
-│   └── ai-components-catalog.json  # 🤖 Catalogue machine
-└── gulpfile.js
+# Projet Tailwind
+npm run init:tailwind
+
+# Autres frameworks supportés
+npm run init:bulma
+npm run init:foundation
+npm run init:minimal
 ```
 
-## 🛠️ Installation
+## 🛠️ Installation et Démarrage Rapide
+
+### Nouveau projet avec framework
 
 ```bash
-# Cloner et installer
+# 1. Cloner et installer le design system
 git clone <repo>
 cd design-system
 npm install
 
-# Développement avec interface IA
+# 2. Initialiser avec votre framework préféré
+npm run init:bootstrap  # ou dsfr, tailwind, etc.
+
+# 3. Démarrer le développement
+npm run dev
+# Interface IA : http://localhost:3000
+```
+
+### Projet existant
+
+```bash
+# Démarrage direct (détection automatique)
 npm run dev
 
-# Build de production
-npm run build
+# Changer de framework interactivement
+npm run switch:framework
+
+# Installer les dépendances du framework détecté
+npm run install:framework
 ```
 
-## 🤖 **Utilisation de l'Interface IA**
+## 📦 Frameworks Supportés
 
-### 1. **Accéder à l'interface**
-```bash
-npm run dev
-# Aller sur http://localhost:3000
-```
+| Framework | CSS | JS | Auto-Install | Description |
+|-----------|-----|----|----|-------------|
+| **Bootstrap 5** | ✅ | ✅ | ✅ | Framework populaire avec composants complets |
+| **DSFR** | ✅ | ✅ | ✅ | Système de Design de l'État français |
+| **Tailwind CSS** | ✅ | ❌ | ✅ | Framework utility-first |
+| **Bulma** | ✅ | ❌ | ✅ | CSS moderne sans JavaScript |
+| **Foundation** | ✅ | ✅ | ✅ | Framework professionnel responsive |
+| **CSS Minimal** | ✅ | ❌ | ➖ | Styles de base sans framework |
 
-### 2. **Générer des composants avec l'IA**
-Demandez à votre IA préférée :
+## 🎯 Comment ça marche
 
-> "Génère un design system DSFR complet avec tokens, atoms (button, input, badge), molecules (alert, card) et un organism (header). Format : artifact markdown structuré avec sections ### pour chaque fichier."
+### 1. **Détection Automatique**
+Le système analyse `src/app/package.json` pour détecter les frameworks installés :
 
-### 3. **Importer automatiquement**
-1. **Copiez** l'artifact markdown généré
-2. **Collez** dans la zone de texte de l'interface
-3. **Cliquez "Analyser"** - validation de la structure
-4. **Cliquez "Importer"** - création automatique des fichiers
-5. **Cliquez "Rebuilder"** - compilation du design system
-
-### 4. **Résultat**
-- ✅ Tous les fichiers créés automatiquement
-- ✅ Design system compilé et disponible
-- ✅ Playground interactif pour chaque composant
-- ✅ Navigation entre tous les éléments
-
-## 📝 Format des Composants
-
-### Structure d'un composant
-```
-src/atoms/button/
-├── button.comp.json    # 🌟 Métadonnées (nouveau format)
-├── button.twig         # Template
-└── _button.scss        # Styles
-```
-
-### Format `.comp.json` (nouveau)
-```json
-{
-  "name": "Button",
-  "type": "atom",
-  "variables": {
-    "variant": {
-      "type": "string",
-      "enum": ["primary", "secondary"],
-      "default": "primary"
-    },
-    "disabled": {
-      "type": "boolean",
-      "default": false
-    }
-  },
-  "twig": "button.twig",
-  "scss": "_button.scss",
-  "tokensUsed": ["color.primary", "spacing.md"],
-  "variants": [
-    {
-      "name": "Primary",
-      "props": { "variant": "primary", "text": "Bouton principal" }
-    },
-    {
-      "name": "Disabled",
-      "props": { "variant": "primary", "disabled": true, "text": "Indisponible" }
-    }
-  ]
-}
-```
-
-### Template Twig avec namespaces
-```twig
-{# Utilisation d'un composant #}
-{% include "@atoms/button/button.twig" with {
-  variant: "primary",
-  text: "Mon bouton"
-} %}
-
-{# Dans une molecule #}
-{% include "@molecules/form-group/form-group.twig" with {
-  label: "Email",
-  type: "email"
-} %}
-```
-
-## 🎨 Design Tokens
-
-### Variables Sass centralisées
-```scss
-// tokens/_variables.scss
-$color-primary: #005eff;
-$color-secondary: #888888;
-$spacing-md: 16px;
-$font-size-base: 16px;
-$radius: 6px;
-```
-
-### Utilisation dans les composants
-```scss
-// atoms/button/_button.scss
-@use '../../tokens/variables' as *;
-
-.btn {
-  padding: $spacing-md;
-  background: $color-primary;
-  border-radius: $radius;
-  font-size: $font-size-base;
-}
-```
-
-## 🔧 Développement
-
-### Commands NPM
-```bash
-npm run dev        # Développement avec interface IA
-npm run build      # Build de production
-npm run clean      # Nettoyer le build
-npm run api        # API seule (port 3001)
-```
-
-### URLs de développement
-- **Interface IA** : http://localhost:3000
-- **API** : http://localhost:3001
-- **Atoms** : http://localhost:3000/atoms/
-- **Molecules** : http://localhost:3000/molecules/
-- **Organisms** : http://localhost:3000/organisms/
-- **Pages** : http://localhost:3000/pages/
-
-### Watcher automatique
-Le système surveille automatiquement :
-- ✅ **Fichiers Sass** → recompilation CSS
-- ✅ **Templates Twig** → regeneration démos
-- ✅ **Métadonnées .comp.json** → mise à jour playground
-- ✅ **Nouveaux composants** → ajout automatique
-
-## 🔒 Sécurité et Protection
-
-### Protection anti-écrasement
-- ✅ **`src/pages/index.twig` ignoré** lors de la génération
-- ✅ **Validation des chemins** d'import (seuls `src/` et `tokens/` autorisés)
-- ✅ **Protection path traversal** dans l'API
-- ✅ **Séparation pages projet / index auto-générés**
-
-### API Endpoints sécurisés
 ```javascript
-POST /api/parse-artifact     # Parser un artifact markdown
-POST /api/create-batch       # Créer plusieurs fichiers
-POST /api/rebuild           # Rebuilder le système
-GET  /api/components        # Lister les composants
+// Détection Bootstrap
+if (dependencies.bootstrap) → Framework: Bootstrap
+// Détection DSFR  
+if (dependencies['@gouvfr/dsfr']) → Framework: DSFR
+// etc.
 ```
 
-## 🤖 Collaboration IA
+### 2. **Intégration Transparente**
+- **CSS** : Compilation automatique avec le bon framework
+- **JavaScript** : Scripts intégrés dans les pages et composants
+- **Templates** : Variables framework injectées automatiquement
+- **Séparation** : Framework dans `src/framework/`, projet dans `src/app/`
 
-### Fichiers générés pour l'IA
-- **`/ai-guide.md`** - Guide d'utilisation des composants
-- **`/ai-components-catalog.json`** - Catalogue machine avec métadonnées
-- **Index enrichis** avec documentation JSON intégrée
+### 3. **Composants Adaptatifs**
+Les composants s'adaptent au framework détecté :
 
-### Workflow IA optimisé
-1. **L'IA consulte** le catalogue existant
-2. **L'IA génère** des composants cohérents utilisant les mêmes tokens
-3. **L'IA propose** des artifacts structurés prêts à importer
-4. **Vous importez** en 3 clics via l'interface web
+```twig
+{# src/app/atoms/button/button.twig #}
 
-### Format d'artifact attendu
+{# Bootstrap #}
+<button class="btn btn-{{ variant }}">{{ text }}</button>
+
+{# DSFR #}
+<button class="fr-btn fr-btn--{{ variant }}">{{ text }}</button>
+
+{# Minimal #}
+<button class="btn btn--{{ variant }}">{{ text }}</button>
+```
+
+## 🚀 Workflow Typique
+
+### Démarrer un nouveau projet
+```bash
+# 1. Choisir son framework
+npm run init  # Mode interactif
+# ou
+npm run init:bootstrap  # Direct
+
+# 2. Développer
+npm run dev
+
+# 3. Générer des composants avec l'IA
+# → Aller sur http://localhost:3000
+# → Demander à Claude de générer un design system Bootstrap
+# → Coller l'artifact → Import automatique
+```
+
+### Changer de framework en cours de route
+```bash
+# Interactive
+npm run switch:framework
+
+# Ou manuellement
+cd src/app
+npm install bootstrap@^5.3.2  # Exemple pour Bootstrap
+cd ../..
+npm run dev  # Redétection automatique
+```
+
+## 🤖 Collaboration IA Améliorée
+
+### Import automatique avec framework
+L'IA génère des composants adaptés au framework détecté :
+
 ```markdown
-# Mon Design System
+# Bootstrap Design System
 
 ## 🎨 Design Tokens
-### tokens/_variables.scss
+### src/app/tokens/_variables.scss
 ```scss
-$color-primary: #000091;
-$spacing-md: 16px;
+$primary: #0d6efd;
+$secondary: #6c757d;
 ```
 
 ## ⚛️ Atoms
-### src/atoms/button/button.comp.json
+### src/app/atoms/button-bootstrap/button-bootstrap.comp.json
 ```json
 {
-  "name": "Button",
-  "type": "atom",
-  "variables": { ... }
-}
-```
-
-### src/atoms/button/button.twig
-```twig
-<button class="btn">{{ text }}</button>
-```
-
-### src/atoms/button/_button.scss
-```scss
-.btn { ... }
-```
-```
-
-## 🚀 Évolutions récentes
-
-### v0.2.0 - Interface IA
-- ✅ Interface web pour import automatique
-- ✅ Parser d'artifacts markdown
-- ✅ API de création de fichiers en lot
-- ✅ Rebuild automatique
-- ✅ Protection anti-écrasement
-
-### v0.1.0 - Base
-- ✅ Architecture atomique
-- ✅ Compilation Sass avec tokens
-- ✅ Templates Twig avec namespaces
-- ✅ Playground interactif
-- ✅ Documentation auto-générée
-
-## 🎯 Cas d'usage
-
-### 1. **Développeur solo**
-- Créez rapidement un design system complet
-- Importez des composants générés par l'IA
-- Playground pour tester les variants
-
-### 2. **Équipe design/dev**
-- Base commune avec tokens centralisés
-- Composants réutilisables et documentés
-- Workflow IA pour accélérer la création
-
-### 3. **Prototypage rapide**
-- Génération de composants en masse via IA
-- Test immédiat dans le playground
-- Export vers autres projets
-
-## 🔧 Personnalisation
-
-### Ajouter des catégories
-```javascript
-// Dans tasks/indexes.js et gulpfile.js
-export const templatesIndex = catIndex('templates');
-```
-
-### Étendre le format .comp.json
-```json
-{
-  "accessibility": {
-    "ariaLabel": "string",
-    "keyboardNavigation": true
-  },
-  "documentation": {
-    "designNotes": "Utiliser pour les actions principales",
-    "codeExamples": ["<button>...</button>"]
+  "name": "ButtonBootstrap",
+  "type": "atom", 
+  "variables": {
+    "variant": {"enum": ["primary", "secondary", "success"]}
   }
 }
 ```
 
-### Personnaliser l'interface IA
-- Modifier `tasks/indexes.js` → fonction `generateAIInterface()`
-- Styles dans la section `<style>` intégrée
-- JavaScript dans `public/js/ai-interface.js`
-
-## 📊 Métriques et Debug
-
-### Logs de développement
-```bash
-🔍 Parsing artifact markdown...
-📦 Creating batch of 15 files...
-✅ Created: src/atoms/button/button.comp.json
-🔨 Triggering rebuild...
-✅ AI Interface generated at root
+### src/app/atoms/button-bootstrap/button-bootstrap.twig
+```twig
+<button class="btn btn-{{ variant }}">{{ text }}</button>
+```
 ```
 
-### Validation automatique
-- ✅ **Format JSON** des métadonnées
-- ✅ **Cohérence** des tokens utilisés
-- ✅ **Structure** des fichiers
-- ✅ **Namespaces** Twig corrects
+### Prompts optimisés pour l'IA
+```
+"Génère un design system Bootstrap complet avec 5 atoms, 3 molecules et 1 organism. 
+Utilise les classes Bootstrap natives et respecte le format artifact markdown."
+```
 
----
+## 🏗️ Architecture App/Framework
 
-## 🆘 Support
+### **Séparation claire des responsabilités**
 
-### Problèmes courants
+```
+src/
+├── app/           # 🎯 VOTRE PROJET
+│   ├── tokens/    # Vos design tokens
+│   ├── atoms/     # Vos composants
+│   ├── molecules/ # Vos combinaisons
+│   ├── organisms/ # Vos sections
+│   ├── pages/     # Vos pages
+│   └── main.scss  # Votre CSS
+└── framework/     # 🏗️ DESIGN SYSTEM (ne pas modifier)
+    ├── atoms/     # Composants du framework
+    ├── molecules/ # Combinaisons du framework
+    └── ...        # Build system
+```
 
-**Import IA ne fonctionne pas**
-- Vérifiez que l'API est démarrée (port 3001)
-- Format markdown doit avoir des sections `###` pour chaque fichier
-- Chemins doivent commencer par `src/` ou `tokens/`
+### **Pourquoi cette séparation ?**
 
-**Composants non détectés**
-- Vérifiez la présence du fichier `.comp.json`
-- Format JSON doit être valide
-- Relancez `npm run build`
+✅ **Clarté** : Votre code projet séparé du framework  
+✅ **Évolutivité** : Changez de framework sans impacter votre code  
+✅ **Collaboration** : Équipe projet vs équipe design system  
+✅ **Maintenance** : Mises à jour indépendantes  
 
-**Erreurs de compilation**
-- Vérifiez les imports Sass `@use '../../tokens/variables'`
-- Namespaces Twig corrects (`@atoms/`, `@molecules/`, etc.)
+### **Workflow de développement**
 
-### Debug
+1. **Vos composants** → `src/app/atoms/ma-carte/`
+2. **Framework CSS** → Détection automatique + intégration
+3. **Build** → Compilation unifiée app + framework
+4. **Playground** → Test de vos composants avec le framework
+
+## 📁 Structure Auto-Générée
+
+Selon le framework choisi, la structure s'adapte :
+
+```
+src/
+├── app/                      # 🎯 Votre projet
+│   ├── tokens/
+│   │   └── _variables.scss   # Tokens adaptés au framework
+│   ├── atoms/
+│   │   ├── button/           # Classes framework natives
+│   │   ├── input/            # Validation framework
+│   │   └── badge/            # Styles cohérents
+│   ├── molecules/
+│   │   ├── alert/            # Composants framework
+│   │   └── card/             # Layout adaptatif
+│   ├── organisms/
+│   │   └── header/           # Sections complexes
+│   ├── pages/
+│   │   └── index.twig        # Page avec assets framework
+│   ├── main.scss             # Point d'entrée CSS projet
+│   └── package.json          # Dépendances framework
+├── framework/                # 🏗️ Design system (ne pas modifier)
+│   ├── atoms/
+│   ├── molecules/
+│   ├── organisms/
+│   ├── framework.scss        # CSS framework auto-généré
+│   └── _generated.scss       # Index auto-généré
+└── tasks/                    # 🔧 Build system
+    ├── framework-detection.js
+    └── ...
+```
+
+## 🔧 Configuration Avancée
+
+### Variables d'environnement
 ```bash
-# Logs détaillés
+# Forcer un framework spécifique
+FRAMEWORK=bootstrap npm run dev
+
+# Mode debug
+DEBUG=true npm run dev
+
+# Reset forcé
+FORCE=true npm run reset
+```
+
+### Personnalisation des frameworks
+```javascript
+// tasks/framework-detection.js
+export class FrameworkDetector {
+  detectFrameworks() {
+    // Ajouter votre framework custom
+    if (deps['votre-framework']) {
+      detected.css = 'custom';
+      // ...configuration
+    }
+  }
+}
+```
+
+## 📊 Commandes de Maintenance
+
+```bash
+# Validation des composants
+npm run validate
+
+# Rapport détaillé du design system  
+npm run report
+
+# Nettoyage des assets
+npm run clean:assets
+
+# Reset complet (avec confirmation)
+npm run reset:force
+```
+
+## 🎨 Exemples par Framework
+
+### Bootstrap
+```bash
+npm run init:bootstrap
+# → Génère Button, Alert, Card avec classes Bootstrap
+# → Intègre bootstrap.bundle.js automatiquement
+# → Tokens : $primary, $secondary, etc.
+```
+
+### DSFR
+```bash
+npm run init:dsfr  
+# → Génère ButtonDSFR, AlertDSFR avec classes fr-*
+# → Intègre dsfr.module.js automatiquement
+# → Tokens : $color-blue-france, etc.
+```
+
+### Tailwind
+```bash
+npm run init:tailwind
+# → Génère composants avec classes utilitaires
+# → Configuration tailwind.config.js
+# → Build process adapté
+```
+
+## 🔍 Debug et Diagnostic
+
+### Diagnostic du framework
+```bash
+npm run detect:framework
+# Affiche le framework détecté et les dépendances manquantes
+```
+
+### URLs de développement
+- **Interface IA** : http://localhost:3000
+- **API** : http://localhost:3001  
+- **Debug** : http://localhost:3001/debug/css-paths
+
+### Logs détaillés
+```bash
 npm run dev:verbose
-
-# Test API seule
-npm run api
-
-# Validation composants
-npm run test:components
+# Affiche la détection de framework, compilation CSS, etc.
 ```
+
+## 🆘 Résolution de Problèmes
+
+### Framework non détecté
+```bash
+# 1. Vérifier package.json
+cat src/app/package.json
+
+# 2. Installer manuellement
+cd src/app && npm install bootstrap
+
+# 3. Forcer la redétection
+npm run detect:framework
+```
+
+### CSS du framework absent
+```bash
+# Vérifier les chemins
+curl http://localhost:3001/debug/css-paths
+
+# Reinstaller les assets
+npm run install:framework
+```
+
+### Composants IA non fonctionnels
+```bash
+# Valider la structure
+npm run validate
+
+# Nettoyer et rebuilder
+npm run clean && npm run build
+```
+
+## 🚀 Migration depuis v0.2.0
+
+```bash
+# 1. Sauvegarder l'ancien src/
+cp -r src/app src-app-backup
+
+# 2. Mettre à jour
+git pull origin main
+npm install
+
+# 3. Migrer avec le framework détecté
+npm run dev  # Détection automatique
+
+# 4. Ou choisir un nouveau framework
+npm run switch:framework
+```
+
+## 📈 Roadmap
+
+- [ ] Support Ant Design
+- [ ] Support Material UI  
+- [ ] Templates de démarrage par domaine (e-commerce, admin, etc.)
+- [ ] CLI interactif complet
+- [ ] Intégration Storybook
+- [ ] Export vers Figma
 
 ---
 
-**Le design system avec interface IA est maintenant prêt ! 🎉**
-
-Passez de "20 fichiers à coder" à "3 clics pour importer" grâce à la collaboration IA intégrée.
+**Le design system qui s'adapte à vos choix techniques ! 🎯**

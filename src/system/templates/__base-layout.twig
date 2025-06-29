@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title|default('Design System') }}</title>
+  
+  {# CSS Framework + Projet (ordre important) #}
+  <link rel="stylesheet" href="{{ cssFramework }}">
+  <link rel="stylesheet" href="{{ cssProject }}">
+  
+  {# Scripts head du framework (si nécessaire) #}
+  {{ jsHead|raw }}
+  
+  {# Styles spécifiques à la page #}
+  {% block head_styles %}{% endblock %}
+</head>
+<body>
+  {% block body_content %}
+    <div class="container">
+      <h1>{{ title|default('Page') }}</h1>
+      {{ content|raw }}
+    </div>
+  {% endblock %}
+  
+  {# Scripts du framework en fin de page #}
+  {{ jsBody|raw }}
+  
+  {# Scripts spécifiques à la page #}
+  {% block body_scripts %}{% endblock %}
+</body>
+</html>

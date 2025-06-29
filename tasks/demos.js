@@ -1,4 +1,4 @@
-// tasks/demos.js - Version complète avec assets et formulaires restaurés
+// tasks/demos.js - Version complète avec variables framework flexibles
 import gulp from 'gulp';
 import path from 'path';
 import fse  from 'fs-extra';
@@ -10,13 +10,17 @@ import {
 } from 'twing';
 
 const loader = new TwingLoaderFilesystem([
-  paths.twingRoot,
-  process.cwd()
+  paths.twingRoot,           // src/app/
+  'src/system/templates',    // Templates système
+  'src',                     // src/ (racine)
+  process.cwd()              // racine projet
 ]);
 
 loader.addPath(path.join(paths.twingRoot, 'atoms'),     'atoms');
 loader.addPath(path.join(paths.twingRoot, 'molecules'), 'molecules');
 loader.addPath(path.join(paths.twingRoot, 'organisms'), 'organisms');
+loader.addPath('src/system/templates', 'templates'); // ✅ AJOUTER CETTE LIGNE
+
 
 const env = new TwingEnvironment(loader);
 
@@ -68,7 +72,6 @@ function getAppCSS() {
   return `
 /* CSS APP - Interface design system playground */
 .demo-container {
-
   margin: 0 auto;
   padding: 2rem;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
@@ -211,6 +214,10 @@ function getAppCSS() {
 `;
 }
 
+// Dans tasks/demos.js - Fonction getAppJS() à corriger
+
+// Dans tasks/demos.js - Remplacer la fonction getAppJS()
+
 function getAppJS() {
   return `
 class ComponentPlayground {
@@ -227,7 +234,6 @@ class ComponentPlayground {
       this.generateForm();
       this.loadDefaults();
       
-      // Attendre que l'iframe soit chargée
       if (this.iframe) {
         this.iframe.addEventListener('load', () => {
           setTimeout(() => this.updateComponent(), 100);
@@ -244,10 +250,7 @@ class ComponentPlayground {
   
   generateForm() {
     const form = document.getElementById('component-form');
-    if (!form) {
-      console.warn('Form element not found');
-      return;
-    }
+    if (!form) return;
     
     const variables = this.componentConfig.variables || {};
     
@@ -299,7 +302,6 @@ class ComponentPlayground {
           input.className = 'form-control';
           input.type = config.type === 'number' ? 'number' : 'text';
           input.value = config.default || '';
-          input.placeholder = config.default || '';
         }
         
         group.appendChild(input);
@@ -321,7 +323,6 @@ class ComponentPlayground {
   }
   
   updateComponent() {
-    // Collecter les valeurs actuelles du formulaire
     Object.entries(this.componentConfig.variables || {}).forEach(([key, config]) => {
       const input = document.getElementById(key);
       if (input) {
@@ -333,7 +334,6 @@ class ComponentPlayground {
       }
     });
     
-    // Envoyer les props à l'iframe
     if (this.iframe && this.iframe.contentWindow) {
       try {
         this.iframe.contentWindow.postMessage({
@@ -345,10 +345,56 @@ class ComponentPlayground {
         console.warn('Could not send message to iframe:', e);
       }
     }
+    
+    this.fetchComponentHTML();
+  }
+  
+  async fetchComponentHTML() {
+    try {
+      const response = await fetch('http://localhost:3001/api/render-component', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          template: this.componentConfig.templatePath,
+          props: this.currentProps
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const codeElement = document.querySelector('#code-display code');
+        if (codeElement) {
+          codeElement.textContent = data.code || data.html;
+          if (window.Prism) {
+            window.Prism.highlightElement(codeElement);
+          }
+        }
+      }
+    } catch (error) {
+      console.warn('Error fetching component HTML:', error);
+    }
   }
 }
 
-// Initialiser le playground
+function switchView(view) {
+  const preview = document.getElementById('preview-content');
+  const code = document.getElementById('code-view');
+  const buttons = document.querySelectorAll('.toggle-btn');
+  
+  buttons.forEach(btn => btn.classList.remove('active'));
+  
+  if (view === 'preview') {
+    preview.style.display = 'block';
+    code.classList.remove('active');
+    buttons[0].classList.add('active');
+  } else {
+    preview.style.display = 'none';
+    code.classList.add('active');
+    buttons[1].classList.add('active');
+  }
+}
+
+window.switchView = switchView;
 new ComponentPlayground();
 `;
 }
@@ -363,7 +409,8 @@ class IframeRenderer {
   init() {
     window.addEventListener('message', (event) => {
       if (event.data.type === 'UPDATE_COMPONENT') {
-        this.renderComponent(event.data.props, event.data.templatePath);
+        // Simplement mettre à jour le HTML reçu
+        this.updateComponent(event.data.html);
       }
     });
     
@@ -379,35 +426,10 @@ class IframeRenderer {
     }
   }
   
-  async renderComponent(props, templatePath) {
-    try {
-      const response = await fetch('http://localhost:3001/api/render-component', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ template: templatePath, props })
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        const renderEl = document.getElementById('component-render');
-        if (renderEl) {
-          renderEl.innerHTML = data.html;
-        }
-      } else {
-        this.showError('Erreur de rendu du composant');
-      }
-    } catch (error) {
-      this.showError('Erreur de communication avec l\\'API: ' + error.message);
-    }
-  }
-  
-  showError(message) {
+  updateComponent(html) {
     const renderEl = document.getElementById('component-render');
     if (renderEl) {
-      renderEl.innerHTML = 
-        '<div style="padding: 1rem; color: #dc3545; border: 1px solid #dc3545; border-radius: 4px; background: #f8d7da;">' + 
-        message + 
-        '</div>';
+      renderEl.innerHTML = html;
     }
   }
 }
@@ -421,7 +443,7 @@ if (window.parent !== window) {
 `;
 }
 
-/* ─── Builder pour COMPOSANTS avec assets garantis ──────────────────────── */
+/* ─── Builder pour COMPOSANTS avec variables framework ──────────────────── */
 function createComponentDemoBuilder(cat) {
   return async function buildCategoryDemos() {
     if (cat === 'pages') {
@@ -431,12 +453,27 @@ function createComponentDemoBuilder(cat) {
     
     ensureAppAssets();
     
-    // 🔄 CHANGEMENT : Nouveau chemin
+    // 🎯 Importer le détecteur de framework
+    let frameworkVars;
+    try {
+      const { frameworkDetector } = await import('./framework-detection.js');
+      frameworkVars = frameworkDetector.getTemplateVariables();
+      console.log(`🎯 Framework détecté pour ${cat}:`, frameworkVars.framework.name);
+    } catch (e) {
+      console.warn('⚠️ Framework detector not available, using minimal config');
+      frameworkVars = {
+        framework: {
+          name: 'minimal',
+          css: null,
+          js: null
+        }
+      };
+    }
+    
     const files = globSync(`src/app/${cat}/*/*.twig`, { nodir: true });
     console.log(`🔧 Building ${cat}: ${files.length} components found`);
 
     for (const file of files) {
-      // 🔄 CHANGEMENT : Nouveau calcul du chemin relatif
       const tplName = path.relative('src/app', file).replace(/\\/g, '/');
       const compName = path.basename(path.dirname(file));
       const compDir = path.dirname(file);
@@ -449,7 +486,7 @@ function createComponentDemoBuilder(cat) {
         continue;
       }
 
-      // Rendu initial pour récupérer le HTML
+      // Rendu initial avec les variables framework
       let snippet;
       try {
         const defaultProps = {};
@@ -463,7 +500,8 @@ function createComponentDemoBuilder(cat) {
           Object.assign(defaultProps, metadata.variants[0].props || {});
         }
         
-        snippet = await env.render(tplName, defaultProps);
+        // Rendre avec les variables framework disponibles
+        snippet = await env.render(tplName, { ...defaultProps, ...frameworkVars });
       } catch (e) {
         console.warn(`⏩ skip ${tplName} (${e.message})`);
         continue;
@@ -477,22 +515,24 @@ function createComponentDemoBuilder(cat) {
         componentCategory: cat,
         templatePath: `@${cat}/${compName}/${compName}.twig`,
         componentVariables: JSON.stringify(metadata.variables || {}),
-        componentVariants: JSON.stringify(metadata.variants || [])
+        componentVariants: JSON.stringify(metadata.variants || []),
+        ...frameworkVars  // 🎯 Injection des variables framework
       };
-      
+
+
       try {
         // 1. Interface APP avec iframe
-        const appHtml = await env.render('system/templates/__wrapper-component.twig', templateData);
+        const appHtml = await env.render('@templates/__wrapper-component.twig', templateData);
         const appPath = path.join(paths.build, `${cat}/${compName}.html`);
         fse.outputFileSync(appPath, appHtml);
         
-        // 2. Contenu PROJET isolé  
-        const projectHtml = await env.render('system/templates/__iframe-project.twig', templateData);
+        // 2. Contenu PROJET isolé avec framework
+        const projectHtml = await env.render('@templates/__iframe-project.twig', templateData);
         const projectPath = path.join(paths.build, `${cat}/render/${compName}.html`);
         fse.ensureDirSync(path.dirname(projectPath));
         fse.outputFileSync(projectPath, projectHtml);
         
-        console.log(`✅ Generated component with isolation: ${compName}`);
+        console.log(`✅ Generated component with framework (${frameworkVars.framework.name}): ${compName}`);
       } catch (error) {
         console.error(`❌ Error generating component ${compName}:`, error.message);
       }

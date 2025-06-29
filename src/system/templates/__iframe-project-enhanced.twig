@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ componentName }} - Isolé</title>
+  
+  {# CSS Framework + Projet #}
+  <link rel="stylesheet" href="{{ cssFramework }}">
+  <link rel="stylesheet" href="{{ cssProject }}">
+  
+  {# Scripts head #}
+  {{ jsHead|raw }}
+  
+  <style>
+    body {
+      margin: 0;
+      padding: 2rem;
+      min-height: calc(100vh - 4rem);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: white;
+    }
+    
+    #component-render {
+      max-width: 100%;
+    }
+    
+    /* Debug framework détecté */
+    .debug-framework {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,150,0,0.9);
+      color: white;
+      padding: 0.5rem;
+      font-size: 0.75rem;
+      z-index: 9999;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div id="component-render">
+    {{ content|raw }}
+  </div>
+  
+  <div class="debug-framework">
+    Framework: {{ framework|upper }}
+  </div>
+  
+  {# Scripts du framework #}
+  {{ jsBody|raw }}
+  
+  <script src="/js/project-iframe.js"></script>
+</body>
+</html>

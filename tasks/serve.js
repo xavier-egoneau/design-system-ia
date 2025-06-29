@@ -7,10 +7,11 @@ import { styles }         from './styles.js';
 import { templates }      from './templates.js';
 import { atomsDemo, moleculesDemo, organismsDemo } from './demos.js';
 import { buildIndexes }   from './indexes.js';
+import { copyAssets }     from './assets.js';  // 🆕 Import assets
 
 const bs = browserSync.create();
 
-/** Serveur simple sans proxy */
+/** Serveur avec surveillance assets */
 export function serve() {
   bs.init({ 
     server: { baseDir: paths.build },
@@ -23,7 +24,7 @@ export function serve() {
   console.log('   Frontend: http://localhost:3000');
   console.log('   API:      http://localhost:3001');
 
-  // 🔄 CHANGEMENT : Nouveaux chemins de surveillance
+  // Watchers existants
   gulp.watch(paths.appScssAll,
     gulp.series(sassIndex, styles, bs.reload));
 
@@ -35,7 +36,20 @@ export function serve() {
 
   gulp.watch(paths.appPages,
     gulp.series(templates, buildIndexes, bs.reload));
+  
+    gulp.watch('src/app/pages/**/*.twig',
+  gulp.series(templates, buildIndexes, bs.reload));
 
   gulp.watch(paths.appComponents,
     gulp.series(atomsDemo, moleculesDemo, organismsDemo, buildIndexes, bs.reload));
+
+  // 🆕 NOUVEAU : Watcher pour les assets
+  gulp.watch(paths.appAssets, 
+    gulp.series(copyAssets, bs.reload));
+
+  console.log('👀 Surveillance active :');
+  console.log('   📄 SCSS: src/app/**/*.scss');
+  console.log('   🧩 Components: src/app/**/*.{twig,comp.json}');
+  console.log('   📄 Pages: src/app/pages/**/*.twig');
+  console.log('   🎨 Assets: src/app/assets/**/*');  // 🆕 Log
 }

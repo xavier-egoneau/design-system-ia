@@ -1,22 +1,56 @@
 {
   "name": "design-system",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
+  "description": "Design System avec détection automatique des frameworks CSS et collaboration IA",
+  "keywords": [
+    "design-system",
+    "components",
+    "twig",
+    "sass",
+    "atomic-design",
+    "playground",
+    "ai-collaboration",
+    "framework-agnostic",
+    "bootstrap",
+    "dsfr",
+    "tailwind",
+    "auto-detection"
+  ],
   "scripts": {
     "clean": "gulp clean",
     "build": "gulp build --prod",
-    "dev": "concurrently \"node tasks/api-server.js\" \"gulp\"",
+    "dev": "concurrently \"node tasks/api-server.js\" \"gulp dev\"",
     "dev:verbose": "concurrently \"node tasks/api-server.js\" \"gulp serveDev\"",
-    "api": "node tasks/api-server.js",
     "start": "npm run dev",
-    "test:components": "node scripts/test-components.js",
-    "cleanup:framework": "node scripts/cleanup-framework-transition.js",
-    "setup:project": "cd src && npm init -y && echo 'Package projet créé dans src/'"
+    
+    "init": "node scripts/init-project.js",
+    "init:bootstrap": "node scripts/init-project.js --framework=bootstrap",
+    "init:dsfr": "node scripts/init-project.js --framework=dsfr", 
+    "init:tailwind": "node scripts/init-project.js --framework=tailwind",
+    "init:bulma": "node scripts/init-project.js --framework=bulma",
+    "init:foundation": "node scripts/init-project.js --framework=foundation",
+    "init:minimal": "node scripts/init-project.js --framework=minimal",
+    
+    "reset": "gulp reset",
+    "reset:force": "node scripts/reset-project.js --force",
+    
+    "switch:framework": "node scripts/switch-framework.js",
+    "install:framework": "gulp installFramework",
+    "detect:framework": "gulp initFramework",
+    
+    "validate": "gulp maintenance.validateComponents",
+    "report": "gulp maintenance.generateReport", 
+    "clean:assets": "gulp maintenance.cleanAssets",
+    
+    "api": "node tasks/api-server.js",
+    "test:components": "node scripts/test-components.js"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^15",
     "autoprefixer": "^10",
     "browser-sync": "^2",
+    "chalk": "^5",
     "concurrently": "^8",
     "cssnano": "^6",
     "del": "^7",
@@ -28,6 +62,7 @@
     "gulp-sass": "^6",
     "gulp-twing": "^4.0.0",
     "http-proxy-middleware": "^2",
+    "inquirer": "^9",
     "postcss": "^8",
     "sass": "^1.70",
     "twing": "^5.0.2"
@@ -35,15 +70,23 @@
   "engines": {
     "node": ">=18"
   },
-  "description": "Design System with framework/project separation and AI collaboration features",
-  "keywords": [
-    "design-system",
-    "components",
-    "twig",
-    "sass",
-    "atomic-design",
-    "playground",
-    "ai-collaboration",
-    "framework-agnostic"
+  "repository": {
+    "type": "git", 
+    "url": "https://github.com/votre-username/design-system.git"
+  },
+  "author": "Votre Nom",
+  "license": "MIT",
+  "config": {
+    "supportedFrameworks": [
+      "bootstrap",
+      "dsfr", 
+      "tailwind",
+      "bulma",
+      "foundation",
+      "minimal"
+    ]
+  },
+  "workspaces": [
+    "src"
   ]
 }
