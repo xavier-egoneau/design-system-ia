@@ -429,17 +429,18 @@ function createComponentDemoBuilder(cat) {
       return Promise.resolve();
     }
     
-    // ✅ S'assurer que les assets existent
     ensureAppAssets();
     
-    const files = globSync(`src/${cat}/*/*.twig`, { nodir: true });
+    // 🔄 CHANGEMENT : Nouveau chemin
+    const files = globSync(`src/app/${cat}/*/*.twig`, { nodir: true });
     console.log(`🔧 Building ${cat}: ${files.length} components found`);
 
     for (const file of files) {
-      const tplName  = path.relative(paths.src, file).replace(/\\/g, '/');
+      // 🔄 CHANGEMENT : Nouveau calcul du chemin relatif
+      const tplName = path.relative('src/app', file).replace(/\\/g, '/');
       const compName = path.basename(path.dirname(file));
-      const compDir  = path.dirname(file);
-      const title    = `${cat.slice(0, -1)} : ${compName}`;
+      const compDir = path.dirname(file);
+      const title = `${cat.slice(0, -1)} : ${compName}`;
       
       const metadata = readComponentMetadata(compDir);
       
@@ -481,12 +482,12 @@ function createComponentDemoBuilder(cat) {
       
       try {
         // 1. Interface APP avec iframe
-        const appHtml = await env.render('__wrapper-component.twig', templateData);
+        const appHtml = await env.render('system/templates/__wrapper-component.twig', templateData);
         const appPath = path.join(paths.build, `${cat}/${compName}.html`);
         fse.outputFileSync(appPath, appHtml);
         
         // 2. Contenu PROJET isolé  
-        const projectHtml = await env.render('__iframe-project.twig', templateData);
+        const projectHtml = await env.render('system/templates/__iframe-project.twig', templateData);
         const projectPath = path.join(paths.build, `${cat}/render/${compName}.html`);
         fse.ensureDirSync(path.dirname(projectPath));
         fse.outputFileSync(projectPath, projectHtml);

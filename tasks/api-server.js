@@ -161,7 +161,8 @@ app.get('/api/components', async (req, res) => {
     const components = [];
     
     ['atoms', 'molecules', 'organisms'].forEach(category => {
-      const dirs = globSync(`src/${category}/*/`, { nodir: false });
+      // 🔄 CHANGEMENT : Nouveau chemin
+      const dirs = globSync(`src/app/${category}/*/`, { nodir: false });
       
       dirs.forEach(dir => {
         const compName = path.basename(dir.replace(/[/\\]$/, ''));
@@ -182,7 +183,7 @@ app.get('/api/components', async (req, res) => {
         }
       });
     });
-    
+
     res.json(components);
   } catch (error) {
     console.error('❌ Components listing error:', error);
@@ -195,7 +196,8 @@ app.get('/api/component/:category/:name', async (req, res) => {
   try {
     const { category, name } = req.params;
     
-    const metaPath = path.join(paths.src, category, name, `${name}.comp.json`);
+    // 🔄 CHANGEMENT : Nouveau chemin
+    const metaPath = path.join('src/app', category, name, `${name}.comp.json`);
     const content = fs.readFileSync(metaPath, 'utf8');
     const metadata = JSON.parse(content);
     

@@ -24,7 +24,8 @@ function readComponentMeta(compPath) {
 /** Génère un index enrichi pour une catégorie */
 function catIndex(cat) {
   return function indexTask(done) {
-    const dirs = globSync(`src/${cat}/*/`, { nodir: false });
+    // 🔄 CHANGEMENT : Nouveau chemin
+    const dirs = globSync(`src/app/${cat}/*/`, { nodir: false });
     const components = dirs.map(dir => {
       const compName = path.basename(dir.replace(/[/\\]$/, ''));
       const meta = readComponentMeta(dir);
@@ -100,7 +101,7 @@ function generateAICatalog(done) {
   const allComponents = [];
   
   ['atoms', 'molecules', 'organisms'].forEach(cat => {
-    const dirs = globSync(`src/${cat}/*/`, { nodir: false });
+    const dirs = globSync(`src/app/${cat}/*/`, { nodir: false });
     dirs.forEach(dir => {
       const compName = path.basename(dir.replace(/[/\\]$/, ''));
       const meta = readComponentMeta(dir);
@@ -164,12 +165,14 @@ ${comp.variants ? comp.variants.map(v => `- **${v.name}**: ${JSON.stringify(v.pr
 
 /** Index pour les pages avec protection anti-écrasement */
 function pagesIndex(done) {
-  const pageFiles = globSync('src/pages/**/*.twig', { nodir: true })
+  // 🔄 CHANGEMENT : Nouveau chemin
+  const pageFiles = globSync('src/app/pages/**/*.twig', { nodir: true })
     .filter(file => !file.endsWith('/index.twig'));
   
   const pages = pageFiles.map(file => {
     const pageName = path.basename(file, '.twig');
-    const relativePath = path.relative('src/pages', file);
+    // 🔄 CHANGEMENT : Nouveau calcul du chemin relatif
+    const relativePath = path.relative('src/app/pages', file);
     
     return {
       name: pageName,

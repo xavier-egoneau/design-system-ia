@@ -13,9 +13,7 @@ const bs = browserSync.create();
 /** Serveur simple sans proxy */
 export function serve() {
   bs.init({ 
-    server: {
-      baseDir: paths.build
-    },
+    server: { baseDir: paths.build },
     open: false,
     notify: false,
     port: 3000
@@ -24,26 +22,20 @@ export function serve() {
   console.log('🌐 Design System running on:');
   console.log('   Frontend: http://localhost:3000');
   console.log('   API:      http://localhost:3001');
-  console.log('');
-  console.log('💡 Note: Les appels API se font directement vers localhost:3001');
 
-  // SCSS
-  gulp.watch(paths.scssAll,
+  // 🔄 CHANGEMENT : Nouveaux chemins de surveillance
+  gulp.watch(paths.appScssAll,
     gulp.series(sassIndex, styles, bs.reload));
 
-  // JSON (ajout / suppression de composants)
-  gulp.watch(paths.jsonAll,
+  gulp.watch(paths.appJsonAll,
     gulp.series(sassIndex, atomsDemo, moleculesDemo, organismsDemo, buildIndexes, bs.reload));
 
-  // Métadonnées des composants (.comp.json)
-  gulp.watch(['src/**/*.comp.json'],
+  gulp.watch(['src/app/**/*.comp.json'],
     gulp.series(atomsDemo, moleculesDemo, organismsDemo, buildIndexes, bs.reload));
 
-  // Pages Twig
-  gulp.watch(paths.twigPages,
+  gulp.watch(paths.appPages,
     gulp.series(templates, buildIndexes, bs.reload));
 
-  // Snippets Twig
-  gulp.watch(paths.twigSnips,
+  gulp.watch(paths.appComponents,
     gulp.series(atomsDemo, moleculesDemo, organismsDemo, buildIndexes, bs.reload));
 }
