@@ -9,6 +9,7 @@ lerna-debug.log*
 
 node_modules
 public
+src
 src/
 src/app/atoms/
 src/app/molecules/
