@@ -9,12 +9,13 @@ lerna-debug.log*
 
 node_modules
 public
-src/atoms/
-src/molecules/
-src/organisms/
-src/tokens/
-src/pages/
-src/_generated.scss
+src/
+src/app/atoms/
+src/app/molecules/
+src/app/organisms/
+src/app/tokens/
+src/app/pages/
+src/app/_generated.scss
 
 package-lock.json
 *.local
