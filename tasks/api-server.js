@@ -26,6 +26,44 @@ const env = new TwingEnvironment(loader);
 app.use(express.json());
 app.use(express.static(paths.build));
 
+app.get('/debug/files/:category', (req, res) => {
+  const { category } = req.params;
+  const { globSync } = require('glob');
+  
+  try {
+    const files = globSync(`${paths.build}/${category}/**/*.html`);
+    const renderFiles = globSync(`${paths.build}/${category}/render/*.html`);
+    
+    res.json({
+      category,
+      mainFiles: files.map(f => path.basename(f)),
+      renderFiles: renderFiles.map(f => path.basename(f)),
+      paths: {
+        build: paths.build,
+        fullPaths: files
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Middleware pour log des 404
+app.use((req, res, next) => {
+  const originalSend = res.send;
+  res.send = function(data) {
+    if (res.statusCode === 404) {
+      console.log(`🔍 404 Debug: ${req.method} ${req.url}`);
+      console.log(`   Looking for file: ${path.join(paths.build, req.url)}`);
+      console.log(`   File exists: ${fse.existsSync(path.join(paths.build, req.url))}`);
+    }
+    originalSend.call(this, data);
+  };
+  next();
+});
+
+console.log(`🔍 Debug endpoints added: /debug/files/:category`);
+
 // CORS pour le développement
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
@@ -432,6 +470,254 @@ app.get('/api/health', (req, res) => {
     twing: 'ready'
   });
 });
+
+// Ajouts à tasks/api-server.js pour la séparation app/projet
+
+// Endpoint pour servir le CSS du PROJET (détection automatique)
+// Fix de l'endpoint project-css dans tasks/api-server.js
+
+// Endpoint pour servir le CSS du PROJET (version corrigée)
+app.get('/api/project-css', (req, res) => {
+  console.log('🎨 CSS Request received');
+  
+  try {
+    let combinedCSS = '';
+    
+    // 1. CSS Framework (si compilé)
+    const frameworkCSSPath = path.join(paths.build, 'css', 'framework.css');
+    if (fse.existsSync(frameworkCSSPath)) {
+      combinedCSS += fse.readFileSync(frameworkCSSPath, 'utf8') + '\n\n';
+      console.log('✅ Framework CSS loaded');
+    } else {
+      console.log('⚠️  No framework CSS found');
+    }
+    
+    // 2. CSS Projet (composants custom)
+    const projectCSSPath = path.join(paths.build, 'css', 'main.css');
+    if (fse.existsSync(projectCSSPath)) {
+      combinedCSS += fse.readFileSync(projectCSSPath, 'utf8');
+      console.log('✅ Project CSS loaded');
+    } else {
+      console.log('⚠️  No project CSS found');
+    }
+    
+    // 3. Si pas de CSS du tout, essayer de charger le DSFR directement
+    if (!combinedCSS.trim()) {
+      const dsfrPath = path.join(paths.src, 'node_modules/@gouvfr/dsfr/dist/dsfr.min.css');
+      if (fse.existsSync(dsfrPath)) {
+        combinedCSS = fse.readFileSync(dsfrPath, 'utf8');
+        console.log('🇫🇷 DSFR loaded directly from node_modules');
+      }
+    }
+    
+    if (combinedCSS.trim()) {
+      res.type('text/css'); // 👈 IMPORTANT: Définir le bon MIME type
+      res.send(combinedCSS);
+      console.log(`📤 CSS sent: ${combinedCSS.length} characters`);
+    } else {
+      // Fallback CSS minimal
+      console.log('🔄 Sending fallback CSS');
+      const fallbackCSS = `
+/* Fallback CSS - Aucun framework détecté */
+body {
+  font-family: system-ui, sans-serif;
+  line-height: 1.5;
+  color: #333;
+  margin: 0;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Styles DSFR basiques pour les composants */
+.fr-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border: 1px solid #000091;
+  border-radius: 0.25rem;
+  background: #000091;
+  color: white;
+  text-decoration: none;
+  font-family: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.fr-btn:hover {
+  background: #1212ff;
+}
+
+.fr-btn--secondary {
+  background: white;
+  color: #000091;
+}
+
+.fr-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #666;
+  border-radius: 0.25rem;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.fr-alert {
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 0.25rem;
+  border-left: 4px solid;
+}
+
+.fr-alert--info {
+  background: #e7f3ff;
+  border-left-color: #0063cb;
+  color: #004085;
+}
+
+.fr-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background: #000091;
+  color: white;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.debug-info {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background: rgba(0,0,0,0.8);
+  color: white;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  z-index: 9999;
+}
+      `;
+      
+      res.type('text/css');
+      res.send(fallbackCSS);
+    }
+  } catch (error) {
+    console.error('❌ Error serving project CSS:', error);
+    res.status(500).type('text/css').send('/* Error loading CSS: ' + error.message + ' */');
+  }
+});
+
+// Debug endpoint pour vérifier les chemins
+app.get('/debug/css-paths', (req, res) => {
+  const paths_debug = {
+    build: paths.build,
+    frameworkCSS: path.join(paths.build, 'css', 'framework.css'),
+    projectCSS: path.join(paths.build, 'css', 'main.css'),
+    dsfrDirect: path.join(paths.src, 'node_modules/@gouvfr/dsfr/dist/dsfr.min.css'),
+    exists: {
+      framework: fse.existsSync(path.join(paths.build, 'css', 'framework.css')),
+      project: fse.existsSync(path.join(paths.build, 'css', 'main.css')),
+      dsfr: fse.existsSync(path.join(paths.src, 'node_modules/@gouvfr/dsfr/dist/dsfr.min.css'))
+    }
+  };
+  
+  res.json(paths_debug);
+});
+
+console.log(`🎨 Project CSS endpoint fixed with proper MIME type`);
+console.log(`🔍 Debug CSS paths: http://localhost:3001/debug/css-paths`);
+
+// Endpoint pour servir framework et projet séparément si besoin
+app.get('/css/framework.css', (req, res) => {
+  const frameworkPath = path.join(paths.build, 'css', 'framework.css');
+  if (fse.existsSync(frameworkPath)) {
+    res.sendFile(path.resolve(frameworkPath));
+  } else {
+    res.status(404).send('/* Framework CSS not found */');
+  }
+});
+
+app.get('/css/main.css', (req, res) => {
+  const mainPath = path.join(paths.build, 'css', 'main.css');
+  if (fse.existsSync(mainPath)) {
+    res.sendFile(path.resolve(mainPath));
+  } else {
+    res.status(404).send('/* Project CSS not found */');
+  }
+});
+
+console.log(`🔗 Framework/Project CSS separation ready`);
+console.log(`📦 Framework auto-detection enabled`);
+
+// Endpoint pour servir les CSS spécifiques
+app.get('/css/:file', (req, res) => {
+  const { file } = req.params;
+  const filePath = path.join(paths.build, 'css', file);
+  
+  if (fse.existsSync(filePath)) {
+    res.sendFile(path.resolve(filePath));
+  } else {
+    res.status(404).send(`CSS file ${file} not found`);
+  }
+});
+
+// Endpoint pour les renders isolés
+app.get('/:category/render/:component.html', (req, res) => {
+  const { category, component } = req.params;
+  const renderPath = path.join(paths.build, category, 'render', `${component}.html`);
+  
+  if (fse.existsSync(renderPath)) {
+    res.sendFile(path.resolve(renderPath));
+  } else {
+    res.status(404).send(`
+      <!DOCTYPE html>
+      <html lang="fr">
+      <head><title>Composant non trouvé</title></head>
+      <body style="padding: 2rem; text-align: center; font-family: system-ui;">
+        <h1>Composant non trouvé</h1>
+        <p>Le composant <strong>${component}</strong> n'existe pas dans <strong>${category}</strong>.</p>
+      </body>
+      </html>
+    `);
+  }
+});
+
+// Endpoint pour obtenir les infos du projet
+app.get('/api/project-info', (req, res) => {
+  try {
+    const projectPackagePath = path.join(paths.src, 'package.json');
+    
+    if (fse.existsSync(projectPackagePath)) {
+      const projectPackage = JSON.parse(fse.readFileSync(projectPackagePath, 'utf8'));
+      
+      res.json({
+        hasProjectPackage: true,
+        name: projectPackage.name || 'Projet sans nom',
+        version: projectPackage.version || '0.0.0',
+        frameworks: Object.keys({
+          ...projectPackage.dependencies,
+          ...projectPackage.devDependencies
+        }).filter(dep => {
+          // Détecter les frameworks CSS courants
+          return ['@gouvfr/dsfr', 'bootstrap', 'bulma', 'foundation-sites', 'tailwindcss', 'materialize-css'].includes(dep);
+        })
+      });
+    } else {
+      res.json({
+        hasProjectPackage: false,
+        name: 'Projet sans package.json',
+        frameworks: []
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Could not read project info' });
+  }
+});
+
+console.log(`🔗 Project/App separation endpoints ready`);
+console.log(`📦 Auto-detection of frameworks enabled`);
 
 // Démarrage du serveur
 app.listen(PORT, () => {

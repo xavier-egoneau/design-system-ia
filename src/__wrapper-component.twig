@@ -1,0 +1,54 @@
+{# __wrapper-component.twig - Interface APP avec iframe (corrigé) #}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>{{ title }}</title>
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <div class="demo-container">
+    <header class="demo-header">
+      <a href="/{{ componentCategory }}/index.html" class="back-link">← Retour à {{ componentCategory }}</a>
+      <h1>{{ title }}</h1>
+      <div class="meta">
+        {{ componentType|capitalize }} • Playground avec isolation
+      </div>
+    </header>
+    
+    <div class="demo-main">
+      <div class="demo-preview">
+        <iframe 
+          id="component-iframe"
+          class="component-iframe"
+          src="/{{ componentCategory }}/render/{{ componentName }}.html"
+          title="Rendu isolé du composant {{ componentName }}"
+        ></iframe>
+      </div>
+      
+      <div class="demo-controls">
+        <h3>Contrôles</h3>
+        <p>Modifications appliquées automatiquement</p>
+        
+        <form id="component-form">
+          {# Contrôles générés par JavaScript #}
+        </form>
+        
+        
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.componentConfig = {
+      name: "{{ componentName }}",
+      category: "{{ componentCategory }}",
+      templatePath: "{{ templatePath }}",
+      variables: {{ componentVariables|raw }},
+      variants: {{ componentVariants|raw }}
+    };
+  </script>
+  
+  <script src="/js/app-playground.js"></script>
+</body>
+</html>

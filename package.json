@@ -1,6 +1,6 @@
 {
   "name": "design-system",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
     "clean": "gulp clean",
@@ -9,7 +9,9 @@
     "dev:verbose": "concurrently \"node tasks/api-server.js\" \"gulp serveDev\"",
     "api": "node tasks/api-server.js",
     "start": "npm run dev",
-    "test:components": "node scripts/test-components.js"
+    "test:components": "node scripts/test-components.js",
+    "cleanup:framework": "node scripts/cleanup-framework-transition.js",
+    "setup:project": "cd src && npm init -y && echo 'Package projet créé dans src/'"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^15",
@@ -33,7 +35,7 @@
   "engines": {
     "node": ">=18"
   },
-  "description": "Design System with interactive component playground and AI collaboration features",
+  "description": "Design System with framework/project separation and AI collaboration features",
   "keywords": [
     "design-system",
     "components",
@@ -41,6 +43,7 @@
     "sass",
     "atomic-design",
     "playground",
-    "ai-collaboration"
+    "ai-collaboration",
+    "framework-agnostic"
   ]
 }

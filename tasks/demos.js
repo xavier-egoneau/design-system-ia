@@ -1,3 +1,4 @@
+// tasks/demos.js - Version complète avec assets et formulaires restaurés
 import gulp from 'gulp';
 import path from 'path';
 import fse  from 'fs-extra';
@@ -8,10 +9,9 @@ import {
   TwingLoaderFilesystem
 } from 'twing';
 
-/* ─── Loader partagé ──────────────────────────────────────────────────── */
 const loader = new TwingLoaderFilesystem([
-  paths.twingRoot,   // …/src
-  process.cwd()      // racine du projet
+  paths.twingRoot,
+  process.cwd()
 ]);
 
 loader.addPath(path.join(paths.twingRoot, 'atoms'),     'atoms');
@@ -20,7 +20,7 @@ loader.addPath(path.join(paths.twingRoot, 'organisms'), 'organisms');
 
 const env = new TwingEnvironment(loader);
 
-/* ─── Lecture des métadonnées d'un composant ──────────────────────────── */
+/* ─── Lecture des métadonnées ──────────────────────────────────────────── */
 function readComponentMetadata(componentDir) {
   const compName = path.basename(componentDir);
   const metaPath = path.join(componentDir, `${compName}.comp.json`);
@@ -29,264 +29,411 @@ function readComponentMetadata(componentDir) {
     const content = fse.readFileSync(metaPath, 'utf8');
     return JSON.parse(content);
   } catch (e) {
-    // Fallback pour les anciens formats
-    const legacyPath = path.join(componentDir, `${compName}.json`);
-    try {
-      const content = fse.readFileSync(legacyPath, 'utf8');
-      const legacy = JSON.parse(content);
-      
-      // Convertir l'ancien format vers le nouveau
-      return {
-        name: legacy.name,
-        type: legacy.category,
-        variables: convertLegacyProps(legacy.props),
-        variants: legacy.variants || [],
-        twig: `${compName}.twig`,
-        scss: `_${compName}.scss`
-      };
-    } catch (e2) {
-      console.warn(`⚠️  No metadata found for ${compName}`);
-      return null;
-    }
+    console.warn(`⚠️  No metadata found for ${compName}`);
+    return null;
   }
 }
 
-function convertLegacyProps(props) {
-  const variables = {};
+/* ─── Assets pour l'APP - Version complète ──────────────────────────────── */
+function ensureAppAssets() {
+  const cssDir = path.join(paths.build, 'css');
+  const jsDir = path.join(paths.build, 'js');
   
-  if (props && typeof props === 'object') {
-    Object.entries(props).forEach(([key, value]) => {
-      if (Array.isArray(value)) {
-        variables[key] = {
-          type: 'string',
-          enum: value,
-          default: value[0]
-        };
-      } else {
-        variables[key] = {
-          type: typeof value,
-          default: value
-        };
+  // Créer les dossiers
+  fse.ensureDirSync(cssDir);
+  fse.ensureDirSync(jsDir);
+  
+  const appCSSPath = path.join(cssDir, 'app.css');
+  const appJSPath = path.join(jsDir, 'app-playground.js');
+  const projectJSPath = path.join(jsDir, 'project-iframe.js');
+  
+  // Ne recréer que si les fichiers n'existent pas ou sont vides
+  if (!fse.existsSync(appCSSPath) || fse.statSync(appCSSPath).size === 0) {
+    console.log('📄 Creating app.css...');
+    fse.outputFileSync(appCSSPath, getAppCSS());
+  }
+  
+  if (!fse.existsSync(appJSPath) || fse.statSync(appJSPath).size === 0) {
+    console.log('📄 Creating app-playground.js...');
+    fse.outputFileSync(appJSPath, getAppJS());
+  }
+  
+  if (!fse.existsSync(projectJSPath) || fse.statSync(projectJSPath).size === 0) {
+    console.log('📄 Creating project-iframe.js...');
+    fse.outputFileSync(projectJSPath, getProjectJS());
+  }
+}
+
+function getAppCSS() {
+  return `
+/* CSS APP - Interface design system playground */
+.demo-container {
+
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  background: #f8f9fa;
+}
+
+.demo-header {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.demo-header h1 {
+  margin: 0 0 0.5rem 0;
+  color: #212529;
+}
+
+.demo-header .meta {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.demo-main {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 2rem;
+  align-items: start;
+}
+
+.demo-preview {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.component-iframe {
+  width: 100%;
+  border: none;
+  min-height: 300px;
+  background: white;
+  border-radius: 4px;
+}
+
+.demo-controls {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  padding: 1.5rem;
+  position: sticky;
+  top: 2rem;
+}
+
+.demo-controls h3 {
+  margin: 0 0 1rem 0;
+  color: #495057;
+}
+
+.demo-controls p {
+  margin: 0 0 1.5rem 0;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.form-group { 
+  margin-bottom: 1.5rem; 
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  transition: border-color 0.15s ease-in-out;
+  box-sizing: border-box;
+  background: white;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.form-check {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.form-check input {
+  margin-right: 0.5rem;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+  padding: 0.5rem 1rem;
+  background: #007bff;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.back-link:hover { 
+  background: #0056b3; 
+  color: white;
+  text-decoration: none;
+}
+
+@media (max-width: 768px) {
+  .demo-main { 
+    grid-template-columns: 1fr; 
+  }
+  .demo-controls { 
+    position: static; 
+  }
+}
+
+/* Debug info */
+.component-info {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #dee2e6;
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+`;
+}
+
+function getAppJS() {
+  return `
+class ComponentPlayground {
+  constructor() {
+    this.iframe = null;
+    this.currentProps = {};
+    this.componentConfig = window.componentConfig || {};
+    this.init();
+  }
+  
+  init() {
+    document.addEventListener('DOMContentLoaded', () => {
+      this.iframe = document.getElementById('component-iframe');
+      this.generateForm();
+      this.loadDefaults();
+      
+      // Attendre que l'iframe soit chargée
+      if (this.iframe) {
+        this.iframe.addEventListener('load', () => {
+          setTimeout(() => this.updateComponent(), 100);
+        });
       }
+      
+      window.addEventListener('message', (event) => {
+        if (event.data.type === 'IFRAME_READY') {
+          this.updateComponent();
+        }
+      });
     });
   }
   
-  return variables;
-}
-
-/* ─── Copy playground JavaScript ──────────────────────────────────────── */
-function copyPlaygroundAssets() {
-  const jsContent = `// Component Playground JavaScript - Version améliorée
-(function() {
-  'use strict';
-  
-  let currentProps = {};
-  
-  document.addEventListener('DOMContentLoaded', function() {
-    if (typeof window.componentConfig === 'undefined') {
-      console.warn('Component config not found');
+  generateForm() {
+    const form = document.getElementById('component-form');
+    if (!form) {
+      console.warn('Form element not found');
       return;
     }
     
-    generateForm();
-    loadDefaultVariant();
-  });
-  
-  function generateForm() {
-    const form = document.getElementById('component-form');
-    if (!form) return;
+    const variables = this.componentConfig.variables || {};
     
-    const variables = window.componentConfig.variables || {};
-    
-    Object.entries(variables).forEach(function([key, config]) {
-      const formGroup = createFormControl(key, config);
-      form.appendChild(formGroup);
-    });
-  }
-  
-  function createFormControl(name, config) {
-    const div = document.createElement('div');
-    div.className = 'form-group';
-    
-    const label = document.createElement('label');
-    label.className = 'form-label';
-    label.textContent = name + (config.type ? ' (' + config.type + ')' : '');
-    label.setAttribute('for', name);
-    
-    let input;
-    
-    if (config.type === 'boolean') {
-      input = document.createElement('input');
-      input.type = 'checkbox';
-      input.className = 'form-check-input';
-      input.checked = config.default || false;
-      
-      const checkDiv = document.createElement('div');
-      checkDiv.className = 'form-check';
-      checkDiv.appendChild(input);
-      checkDiv.appendChild(label);
-      
-      div.appendChild(checkDiv);
-    } else if (config.enum) {
-      input = document.createElement('select');
-      input.className = 'form-control';
-      
-      config.enum.forEach(function(option) {
-        const opt = document.createElement('option');
-        opt.value = option;
-        opt.textContent = option;
-        opt.selected = option === config.default;
-        input.appendChild(opt);
-      });
-      
-      div.appendChild(label);
-      div.appendChild(input);
-    } else if (config.type === 'array') {
-      input = document.createElement('textarea');
-      input.className = 'form-control';
-      input.rows = 3;
-      input.placeholder = 'JSON array...';
-      input.value = JSON.stringify(config.default || [], null, 2);
-      
-      div.appendChild(label);
-      div.appendChild(input);
-    } else {
-      input = document.createElement('input');
-      input.type = config.type === 'number' ? 'number' : 'text';
-      input.className = 'form-control';
-      input.value = config.default || '';
-      input.placeholder = config.placeholder || 'Entrez ' + name + '...';
-      
-      div.appendChild(label);
-      div.appendChild(input);
+    if (Object.keys(variables).length === 0) {
+      form.innerHTML = '<p style="color: #6c757d; font-style: italic;">Aucune variable configurable</p>';
+      return;
     }
     
-    input.id = name;
-    input.addEventListener('change', function() { updateComponent(); });
-    input.addEventListener('input', function() { updateComponent(); });
-    
-    return div;
-  }
-  
-  function loadDefaultVariant() {
-    const variables = window.componentConfig.variables || {};
-    Object.entries(variables).forEach(function([key, config]) {
-      currentProps[key] = config.default;
+    Object.entries(variables).forEach(([key, config]) => {
+      const group = document.createElement('div');
+      group.className = 'form-group';
+      
+      let input;
+      
+      if (config.type === 'boolean') {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'form-check';
+        
+        input = document.createElement('input');
+        input.type = 'checkbox';
+        input.checked = config.default || false;
+        
+        const label = document.createElement('label');
+        label.className = 'form-label';
+        label.textContent = key;
+        
+        wrapper.appendChild(input);
+        wrapper.appendChild(label);
+        group.appendChild(wrapper);
+      } else {
+        const label = document.createElement('label');
+        label.className = 'form-label';
+        label.textContent = key;
+        group.appendChild(label);
+        
+        if (config.enum) {
+          input = document.createElement('select');
+          input.className = 'form-control';
+          
+          config.enum.forEach((option) => {
+            const opt = document.createElement('option');
+            opt.value = option;
+            opt.textContent = option;
+            opt.selected = option === config.default;
+            input.appendChild(opt);
+          });
+        } else {
+          input = document.createElement('input');
+          input.className = 'form-control';
+          input.type = config.type === 'number' ? 'number' : 'text';
+          input.value = config.default || '';
+          input.placeholder = config.default || '';
+        }
+        
+        group.appendChild(input);
+      }
+      
+      input.id = key;
+      input.addEventListener('change', () => this.updateComponent());
+      input.addEventListener('input', () => this.updateComponent());
+      
+      form.appendChild(group);
     });
-    updateComponent();
   }
   
-  function updateComponent() {
-    Object.entries(window.componentConfig.variables || {}).forEach(function([key, config]) {
+  loadDefaults() {
+    const variables = this.componentConfig.variables || {};
+    Object.entries(variables).forEach(([key, config]) => {
+      this.currentProps[key] = config.default;
+    });
+  }
+  
+  updateComponent() {
+    // Collecter les valeurs actuelles du formulaire
+    Object.entries(this.componentConfig.variables || {}).forEach(([key, config]) => {
       const input = document.getElementById(key);
       if (input) {
         if (config.type === 'boolean') {
-          currentProps[key] = input.checked;
-        } else if (config.type === 'array' && input.tagName === 'TEXTAREA') {
-          try {
-            currentProps[key] = JSON.parse(input.value);
-          } catch (e) {
-            currentProps[key] = config.default || [];
-          }
-        } else if (config.type === 'number') {
-          currentProps[key] = parseFloat(input.value) || config.default || 0;
+          this.currentProps[key] = input.checked;
         } else {
-          currentProps[key] = input.value || config.default || '';
+          this.currentProps[key] = input.value || config.default || '';
         }
       }
     });
     
-    fetch('http://localhost:3001/api/render-component', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        template: window.componentConfig.templatePath,
-        props: currentProps
-      })
-    })
-    .then(function(response) {
-      if (response.ok) {
-        return response.json();
-      } else {
-        throw new Error('API Error: ' + response.status);
+    // Envoyer les props à l'iframe
+    if (this.iframe && this.iframe.contentWindow) {
+      try {
+        this.iframe.contentWindow.postMessage({
+          type: 'UPDATE_COMPONENT',
+          props: this.currentProps,
+          templatePath: this.componentConfig.templatePath
+        }, '*');
+      } catch (e) {
+        console.warn('Could not send message to iframe:', e);
       }
-    })
-    .then(function(data) {
-      document.getElementById('component-render').innerHTML = data.html;
-      updateCodeDisplay(data.code);
-    })
-    .catch(function(error) {
-      document.getElementById('component-render').innerHTML = 
-        '<div style="padding: 1rem; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; color: #856404;">' +
-        '<strong>Erreur de rendu</strong><br>' +
-        'Détails: ' + error.message + 
-        '</div>';
-    });
-  }
-  
-  function updateCodeDisplay(html) {
-    const codeDisplay = document.getElementById('code-display');
-    if (!codeDisplay) return;
-    
-    // Formatter le HTML avec indentation simple
-    const formattedHtml = html
-      .replace(/></g, '>\\n<')
-      .replace(/^\\s+/gm, '')
-      .trim();
-    
-    // Échapper le HTML pour l'affichage
-    const escapedHtml = formattedHtml
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-    
-    // Appliquer une coloration syntaxique simple
-    const coloredHtml = escapedHtml
-      .replace(/(&lt;[^&]*&gt;)/g, '<span class="tag">$1</span>')
-      .replace(/(\\w+)=/g, '<span class="attr">$1</span>=')
-      .replace(/="([^"]*)"/g, '="<span class="string">$1</span>"');
-    
-    codeDisplay.innerHTML = coloredHtml;
-  }
-  
-  // Suppression de formatHtml et highlightHtmlSyntax - plus nécessaires
-  
-  window.switchView = function(view) {
-    const previewContent = document.getElementById('preview-content');
-    const codeView = document.getElementById('code-view');
-    const buttons = document.querySelectorAll('.toggle-btn');
-    
-    buttons.forEach(function(btn) { btn.classList.remove('active'); });
-    
-    if (view === 'preview') {
-      previewContent.style.display = 'block';
-      codeView.classList.remove('active');
-      buttons[0].classList.add('active');
-    } else {
-      previewContent.style.display = 'none';
-      codeView.classList.add('active');
-      buttons[1].classList.add('active');
     }
-  };
-  
-  window.updateComponent = updateComponent;
-  
-})();`;
-
-  // Créer le dossier js et copier le fichier
-  fse.ensureDirSync(path.join(paths.build, 'js'));
-  fse.outputFileSync(path.join(paths.build, 'js/component-playground.js'), jsContent);
+  }
 }
 
-/* ─── Génération d'une page wrapper pour chaque composant ─────────────── */
-function createDemoBuilder(cat) {
+// Initialiser le playground
+new ComponentPlayground();
+`;
+}
+
+function getProjectJS() {
+  return `
+class IframeRenderer {
+  constructor() {
+    this.init();
+  }
+  
+  init() {
+    window.addEventListener('message', (event) => {
+      if (event.data.type === 'UPDATE_COMPONENT') {
+        this.renderComponent(event.data.props, event.data.templatePath);
+      }
+    });
+    
+    // Notifier au parent que l'iframe est prête
+    this.notifyReady();
+  }
+  
+  notifyReady() {
+    try {
+      window.parent.postMessage({ type: 'IFRAME_READY' }, '*');
+    } catch (e) {
+      console.log('Could not notify parent');
+    }
+  }
+  
+  async renderComponent(props, templatePath) {
+    try {
+      const response = await fetch('http://localhost:3001/api/render-component', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ template: templatePath, props })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const renderEl = document.getElementById('component-render');
+        if (renderEl) {
+          renderEl.innerHTML = data.html;
+        }
+      } else {
+        this.showError('Erreur de rendu du composant');
+      }
+    } catch (error) {
+      this.showError('Erreur de communication avec l\\'API: ' + error.message);
+    }
+  }
+  
+  showError(message) {
+    const renderEl = document.getElementById('component-render');
+    if (renderEl) {
+      renderEl.innerHTML = 
+        '<div style="padding: 1rem; color: #dc3545; border: 1px solid #dc3545; border-radius: 4px; background: #f8d7da;">' + 
+        message + 
+        '</div>';
+    }
+  }
+}
+
+// Initialiser seulement dans une iframe
+if (window.parent !== window) {
+  document.addEventListener('DOMContentLoaded', () => {
+    new IframeRenderer();
+  });
+}
+`;
+}
+
+/* ─── Builder pour COMPOSANTS avec assets garantis ──────────────────────── */
+function createComponentDemoBuilder(cat) {
   return async function buildCategoryDemos() {
-    // D'abord copier les assets du playground
-    copyPlaygroundAssets();
+    if (cat === 'pages') {
+      console.log(`⏩ Skipping ${cat} - handled by templates task`);
+      return Promise.resolve();
+    }
+    
+    // ✅ S'assurer que les assets existent
+    ensureAppAssets();
     
     const files = globSync(`src/${cat}/*/*.twig`, { nodir: true });
+    console.log(`🔧 Building ${cat}: ${files.length} components found`);
 
     for (const file of files) {
       const tplName  = path.relative(paths.src, file).replace(/\\/g, '/');
@@ -294,17 +441,16 @@ function createDemoBuilder(cat) {
       const compDir  = path.dirname(file);
       const title    = `${cat.slice(0, -1)} : ${compName}`;
       
-      // Lire les métadonnées du composant
       const metadata = readComponentMetadata(compDir);
       
       if (!metadata) {
-        console.warn(`⏩  skip ${tplName} (pas de métadonnées)`);
+        console.warn(`⏩ skip ${tplName} (pas de métadonnées)`);
         continue;
       }
 
+      // Rendu initial pour récupérer le HTML
       let snippet;
       try {
-        // Utiliser les props par défaut ou du premier variant
         const defaultProps = {};
         if (metadata.variables) {
           Object.entries(metadata.variables).forEach(([key, config]) => {
@@ -312,22 +458,20 @@ function createDemoBuilder(cat) {
           });
         }
         
-        // Si il y a des variants, utiliser le premier
         if (metadata.variants && metadata.variants.length > 0) {
           Object.assign(defaultProps, metadata.variants[0].props || {});
         }
         
         snippet = await env.render(tplName, defaultProps);
       } catch (e) {
-        console.warn(`⏩  skip ${tplName} (${e.message})`);
-        continue; // ignore les dossiers incomplets
+        console.warn(`⏩ skip ${tplName} (${e.message})`);
+        continue;
       }
 
-      // Préparer les données pour le template
       const templateData = {
         title,
         content: snippet,
-        componentName: metadata.name,
+        componentName: compName,
         componentType: metadata.type,
         componentCategory: cat,
         templatePath: `@${cat}/${compName}/${compName}.twig`,
@@ -335,35 +479,35 @@ function createDemoBuilder(cat) {
         componentVariants: JSON.stringify(metadata.variants || [])
       };
       
-      // Utiliser le template propre
       try {
-        const html = await env.render('__wrapper-interactive.twig', templateData);
+        // 1. Interface APP avec iframe
+        const appHtml = await env.render('__wrapper-component.twig', templateData);
+        const appPath = path.join(paths.build, `${cat}/${compName}.html`);
+        fse.outputFileSync(appPath, appHtml);
         
-        const outPath = path.join(paths.build, `${cat}/${compName}.html`);
-        fse.outputFileSync(outPath, html);
+        // 2. Contenu PROJET isolé  
+        const projectHtml = await env.render('__iframe-project.twig', templateData);
+        const projectPath = path.join(paths.build, `${cat}/render/${compName}.html`);
+        fse.ensureDirSync(path.dirname(projectPath));
+        fse.outputFileSync(projectPath, projectHtml);
         
-        console.log(`✅ Generated interactive demo for ${compName}`);
+        console.log(`✅ Generated component with isolation: ${compName}`);
       } catch (error) {
-        console.error(`❌ Error generating demo for ${compName}:`, error.message);
-        
-        // Fallback vers l'ancien wrapper simple
-        const fallbackHtml = await env.render('__wrapper.twig', {
-          title,
-          content: snippet
-        });
-        
-        const outPath = path.join(paths.build, `${cat}/${compName}.html`);
-        fse.outputFileSync(outPath, fallbackHtml);
-        
-        console.log(`📝 Generated basic demo for ${compName} (fallback)`);
+        console.error(`❌ Error generating component ${compName}:`, error.message);
       }
     }
   };
 }
 
-export const atomsDemo      = createDemoBuilder('atoms');
-export const moleculesDemo  = createDemoBuilder('molecules');
-export const organismsDemo  = createDemoBuilder('organisms');
+/* ─── Builder pour PAGES séparé ────────────────────────────────────────── */
+function buildPagesDemo() {
+  console.log('📄 Pages demo (handled by templates task)');
+  return Promise.resolve();
+}
 
-/* Agrégation pratique pour gulp.parallel(styles, templates, demos) */
-export const demos = gulp.parallel(atomsDemo, moleculesDemo, organismsDemo);
+export const atomsDemo      = createComponentDemoBuilder('atoms');
+export const moleculesDemo  = createComponentDemoBuilder('molecules');
+export const organismsDemo  = createComponentDemoBuilder('organisms');
+export const pagesDemo      = buildPagesDemo;
+
+export const demos = gulp.parallel(atomsDemo, moleculesDemo, organismsDemo, pagesDemo);

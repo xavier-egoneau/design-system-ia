@@ -1,7 +1,0 @@
-<button 
-  class="a-button a-button--{{ variant|default('primary') }}{% if size|default('md') != 'md' %} a-button--{{ size }}{% endif %}"
-  {% if disabled|default(false) %}disabled{% endif %}
-  type="button"
->
-  {{ text|default('Button') }}
-</button>
