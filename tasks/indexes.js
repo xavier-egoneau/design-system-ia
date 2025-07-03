@@ -97,6 +97,7 @@ ${JSON.stringify(components.filter(c => c.meta).map(c => ({
 }
 
 /** Génère un catalogue global pour l'IA */
+// Dans tasks/indexes.js - fonction generateAICatalog()
 function generateAICatalog(done) {
   const allComponents = [];
   
@@ -118,21 +119,81 @@ function generateAICatalog(done) {
     });
   });
 
+  // Guide amélioré avec instructions d'artifact
   const aiGuide = `# Design System - Guide pour l'IA
 
-## Comment utiliser les composants
+## 🚨 **FORMAT CRITIQUE : Artifact Markdown pour Import Auto**
 
-Chaque composant peut être inclus via Twig avec cette syntaxe :
-${'```'}twig
-{% include "@category/component/component.twig" with {
-  prop1: "value1",
-  prop2: "value2"
-} %}
+### **OBLIGATION : UN SEUL artifact markdown avec TOUS les fichiers**
+
+❌ **INTERDIT** : Donner les fichiers séparément (button.comp.json, puis button.twig...)
+✅ **OBLIGATOIRE** : UN artifact markdown complet avec tous les fichiers
+
+### **Structure EXACTE requise :**
+
+${'```'}markdown
+# Mon Design System
+
+## 🎨 Design Tokens
+### tokens/_variables.scss
+${'```'}scss
+$color-primary: #000091;
+$spacing-md: 16px;
 ${'```'}
 
-## Catalogue des composants disponibles
+## ⚛️ Atoms
+### src/atoms/button-example/button-example.comp.json
+${'```'}json
+{
+  "name": "ButtonExample",
+  "type": "atom",
+  "variables": {
+    "variant": {
+      "type": "string",
+      "enum": ["primary", "secondary"],
+      "default": "primary"
+    }
+  },
+  "variants": [
+    {
+      "name": "Primary",
+      "props": { "variant": "primary", "text": "Bouton principal" }
+    }
+  ]
+}
+${'```'}
 
-${allComponents.map(comp => `
+### src/atoms/button-example/button-example.twig
+${'```'}twig
+<button class="btn btn--{{ variant }}">{{ text }}</button>
+${'```'}
+
+### src/atoms/button-example/_button-example.scss
+${'```'}scss
+@use '../../tokens/variables' as *;
+
+.btn {
+  padding: $spacing-md;
+  background: $color-primary;
+}
+${'```'}
+${'```'}
+
+## 🎯 **RÈGLES ABSOLUES**
+
+1. **Format des sections** : Chaque fichier DOIT commencer par \`### chemin/vers/fichier.ext\`
+2. **Langages spécifiés** : Chaque bloc DOIT avoir \`${'```'}langage\` 
+3. **Chemins autorisés** : Uniquement \`src/atoms/\`, \`src/molecules/\`, \`src/organisms/\`, \`tokens/\`
+4. **Champs obligatoires .comp.json** : name, type, variables, variants
+
+## 💡 **Prompt suggéré**
+
+"Génère-moi un design system [framework] complet avec X atoms et Y molecules sous forme d'artifact markdown pour l'import automatique. Respecte le format exact avec sections ### et langages spécifiés."
+
+## 📊 **Composants disponibles dans ce projet**
+
+${allComponents.length > 0 ? 
+  allComponents.map(comp => `
 ### ${comp.name} (${comp.category})
 - **Path**: \`${comp.path}\`
 - **Type**: ${comp.type}
@@ -147,14 +208,30 @@ ${comp.variables ? Object.entries(comp.variables).map(([key, def]) =>
 ${comp.variants ? comp.variants.map(v => `- **${v.name}**: ${JSON.stringify(v.props)}`).join('\n') : 'Aucun variant'}
 
 **Design tokens utilisés:** ${comp.tokensUsed ? comp.tokensUsed.join(', ') : 'Aucun'}
-`).join('\n')}
+`).join('\n') : 
+  'Aucun composant trouvé. Utilisez l\'import automatique pour créer vos premiers composants.'
+}
 
-## Guidelines d'utilisation
+## 🔧 **Comment utiliser les composants existants**
 
-1. Toujours utiliser les namespaces (@atoms, @molecules, @organisms)
-2. Respecter les types de variables définies dans les métadonnées
-3. Utiliser les variants prédéfinis quand ils existent
-4. Les composants utilisent les design tokens définis dans tokens/variables
+Chaque composant peut être inclus via Twig avec cette syntaxe :
+${'```'}twig
+{% include "@category/component/component.twig" with {
+  prop1: "value1",
+  prop2: "value2"
+} %}
+${'```'}
+
+## 🚀 **Workflow recommandé**
+
+1. **Générer** un artifact markdown complet avec tous les fichiers
+2. **Coller** dans l'interface d'import automatique
+3. **Importer** → tous les fichiers sont créés automatiquement
+4. **Rebuilder** le système pour voir les nouveaux composants
+
+## ⚡ **Résultat attendu**
+
+L'IA génère UN artifact que l'utilisateur colle → création automatique de 10+ fichiers organisés en 30 secondes.
 `;
 
   fse.outputFileSync(path.join(paths.build, 'ai-components-catalog.json'), JSON.stringify(allComponents, null, 2));
