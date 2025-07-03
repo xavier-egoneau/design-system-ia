@@ -98,6 +98,7 @@ ${JSON.stringify(components.filter(c => c.meta).map(c => ({
 
 /** Génère un catalogue global pour l'IA */
 // Dans tasks/indexes.js - fonction generateAICatalog()
+/** Génère un catalogue global pour l'IA avec guidelines améliorées */
 function generateAICatalog(done) {
   const allComponents = [];
   
@@ -119,33 +120,74 @@ function generateAICatalog(done) {
     });
   });
 
-  // Guide amélioré avec instructions d'artifact
+  // Guide amélioré avec instructions d'artifact détaillées
   const aiGuide = `# Design System - Guide pour l'IA
 
-## 🚨 **FORMAT CRITIQUE : Artifact Markdown pour Import Auto**
+## 🚨 **ERREURS FRÉQUENTES des IA (à éviter absolument)**
 
-### **OBLIGATION : UN SEUL artifact markdown avec TOUS les fichiers**
-
-❌ **INTERDIT** : Donner les fichiers séparément (button.comp.json, puis button.twig...)
-✅ **OBLIGATOIRE** : UN artifact markdown complet avec tous les fichiers
-
-### **Structure EXACTE requise :**
-
+### ❌ **Erreur #1 : Sections malformées**
 ${'```'}markdown
-# Mon Design System
-
-## 🎨 Design Tokens
-### tokens/_variables.scss
-${'```'}scss
-$color-primary: #000091;
-$spacing-md: 16px;
+<!-- INCORRECT -->
+## Atoms
+### button.comp.json
 ${'```'}
 
+✅ **CORRECT** : 
+${'```'}markdown
 ## ⚛️ Atoms
-### src/atoms/button-example/button-example.comp.json
+### src/atoms/button/button.comp.json
+${'```'}
+
+### ❌ **Erreur #2 : Blocs de code sans langage**
+${'```'}markdown
+<!-- INCORRECT -->
+### src/atoms/button/button.comp.json
+${'```'}
+{
+  "name": "Button"
+}
+${'```'}
+${'```'}
+
+✅ **CORRECT** :
+${'```'}markdown
+### src/atoms/button/button.comp.json
 ${'```'}json
 {
-  "name": "ButtonExample",
+  "name": "Button"
+}
+${'```'}
+${'```'}
+
+### ❌ **Erreur #3 : Chemins invalides**
+${'```'}markdown
+<!-- INCORRECT -->
+### components/button.json  ← Chemin interdit
+### public/button.css      ← Chemin interdit
+### button.comp.json       ← Pas de dossier parent
+${'```'}
+
+✅ **CORRECT** :
+${'```'}markdown
+### src/atoms/button/button.comp.json    ← Chemin valide
+### tokens/_variables.scss               ← Chemin valide
+${'```'}
+
+### ❌ **Erreur #4 : JSON malformé**
+${'```'}json
+<!-- INCORRECT -->
+{
+  "name": "Button",
+  "variables": {
+    "variant": "primary"  // ← Structure incorrecte
+  }
+}
+${'```'}
+
+✅ **CORRECT** :
+${'```'}json
+{
+  "name": "Button",
   "type": "atom",
   "variables": {
     "variant": {
@@ -154,41 +196,187 @@ ${'```'}json
       "default": "primary"
     }
   },
-  "variants": [
+  "variants": []
+}
+${'```'}
+
+## 🎯 **RÈGLES ABSOLUES pour la Structure**
+
+### **Règle #1 : Sections EXACTES obligatoires**
+${'```'}markdown
+# Mon Design System                    ← Titre obligatoire
+
+## 🎨 Design Tokens                    ← Section obligatoire
+### tokens/_variables.scss             ← Chemin exact
+${'```'}scss                                ← Langage OBLIGATOIRE
+$color-primary: #000091;
+${'```'}                                    ← Fermeture OBLIGATOIRE
+
+## ⚛️ Atoms                            ← Section obligatoire
+### src/atoms/nom-composant/nom-composant.comp.json  ← Chemin exact
+${'```'}json                               ← Langage OBLIGATOIRE
+{
+  "name": "NomComposant",
+  "type": "atom",
+  "variables": {},
+  "variants": []
+}
+${'```'}                                   ← Fermeture OBLIGATOIRE
+${'```'}
+
+### **Règle #2 : Convention de nommage STRICTE**
+${'```'}
+✅ CORRECT :
+src/atoms/button-primary/button-primary.comp.json
+src/atoms/button-primary/button-primary.twig
+src/atoms/button-primary/_button-primary.scss
+
+❌ INCORRECT :
+src/atoms/button/ButtonPrimary.comp.json  ← Casse incorrecte
+src/atoms/button/button.json              ← Extension incorrecte
+src/atoms/button/button.css               ← CSS au lieu de SCSS
+${'```'}
+
+### **Règle #3 : Structure JSON .comp.json OBLIGATOIRE**
+${'```'}json
+{
+  "name": "NomExact",           // ← OBLIGATOIRE : string
+  "type": "atom",               // ← OBLIGATOIRE : atom|molecule|organism
+  "variables": {                // ← OBLIGATOIRE : object (même vide {})
+    "propName": {
+      "type": "string",         // ← Type obligatoire
+      "default": "value",       // ← Valeur par défaut
+      "enum": ["opt1", "opt2"]  // ← Optionnel pour choix limités
+    }
+  },
+  "variants": [                 // ← OBLIGATOIRE : array (même vide [])
     {
-      "name": "Primary",
-      "props": { "variant": "primary", "text": "Bouton principal" }
+      "name": "VariantName",    // ← Nom du variant
+      "props": { "prop": "val" } // ← Props du variant
     }
   ]
 }
 ${'```'}
 
-### src/atoms/button-example/button-example.twig
-${'```'}twig
-<button class="btn btn--{{ variant }}">{{ text }}</button>
+## 📋 **CHECKLIST de Validation Artifact**
+
+Avant de générer l'artifact, l'IA DOIT vérifier :
+
+### ✅ **Structure générale**
+- [ ] Titre \`# Mon Design System\` présent
+- [ ] Section \`## 🎨 Design Tokens\` présente
+- [ ] Au moins une section \`## ⚛️ Atoms\` ou \`## 🧬 Molecules\`
+
+### ✅ **Chaque fichier**
+- [ ] Commence par \`### chemin/vers/fichier.ext\`
+- [ ] A un bloc \`${'```'}langage\` spécifié
+- [ ] Le code est entre \`${'```'}\`
+- [ ] Se termine par \`${'```'}\`
+
+### ✅ **Chemins valides uniquement**
+- [ ] Tous les chemins commencent par \`src/\` ou \`tokens/\`
+- [ ] Aucun chemin \`public/\`, \`components/\`, \`lib/\`, etc.
+- [ ] Structure \`src/{category}/{nom-composant}/\`
+
+### ✅ **Fichiers .comp.json**
+- [ ] Champ \`name\` présent (string)
+- [ ] Champ \`type\` présent (atom|molecule|organism)
+- [ ] Champ \`variables\` présent (object)
+- [ ] Champ \`variants\` présent (array)
+- [ ] JSON valide (pas de virgules en trop, etc.)
+
+### ✅ **Cohérence**
+- [ ] Nom du composant = nom du dossier
+- [ ] Type cohérent avec la catégorie (atom dans atoms/)
+- [ ] Variables utilisées dans le template Twig
+
+## 💡 **EXEMPLE PARFAIT à suivre**
+
+### **Artifact minimal valide :**
+${'```'}markdown
+# Design System Test
+
+## 🎨 Design Tokens
+### tokens/_variables.scss
+${'```'}scss
+$primary: #0d6efd;
 ${'```'}
 
-### src/atoms/button-example/_button-example.scss
+## ⚛️ Atoms
+### src/atoms/button-test/button-test.comp.json
+${'```'}json
+{
+  "name": "ButtonTest",
+  "type": "atom",
+  "variables": {
+    "text": {
+      "type": "string",
+      "default": "Button"
+    }
+  },
+  "variants": [
+    {
+      "name": "Default",
+      "props": { "text": "Click me" }
+    }
+  ]
+}
+${'```'}
+
+### src/atoms/button-test/button-test.twig
+${'```'}twig
+<button class="btn">{{ text }}</button>
+${'```'}
+
+### src/atoms/button-test/_button-test.scss
 ${'```'}scss
 @use '../../tokens/variables' as *;
 
 .btn {
-  padding: $spacing-md;
-  background: $color-primary;
+  background: $primary;
+  color: white;
+  padding: 0.5rem 1rem;
 }
 ${'```'}
 ${'```'}
 
-## 🎯 **RÈGLES ABSOLUES**
+## 🚨 **Messages d'erreur typiques et solutions**
 
-1. **Format des sections** : Chaque fichier DOIT commencer par \`### chemin/vers/fichier.ext\`
-2. **Langages spécifiés** : Chaque bloc DOIT avoir \`${'```'}langage\` 
-3. **Chemins autorisés** : Uniquement \`src/atoms/\`, \`src/molecules/\`, \`src/organisms/\`, \`tokens/\`
-4. **Champs obligatoires .comp.json** : name, type, variables, variants
+### **"Aucun fichier détecté"**
+→ Vérifiez les sections \`###\` et les blocs \`${'```'}\`
 
-## 💡 **Prompt suggéré**
+### **"Chemin non autorisé"**
+→ Utilisez uniquement \`src/\` et \`tokens/\`
 
-"Génère-moi un design system [framework] complet avec X atoms et Y molecules sous forme d'artifact markdown pour l'import automatique. Respecte le format exact avec sections ### et langages spécifiés."
+### **"JSON invalide"**
+→ Vérifiez la structure obligatoire avec name, type, variables, variants
+
+### **"Erreur lors de l'import"**
+→ Vérifiez que chaque bloc de code a son langage spécifié
+
+## 🎯 **Prompt parfait pour l'IA**
+
+${'```'}
+Génère-moi un design system [Framework] avec [X] atoms et [Y] molecules.
+
+IMPORTANT : Respecte EXACTEMENT cette structure :
+- UN artifact markdown complet
+- Sections ### avec chemins src/ uniquement  
+- Blocs ${'```'}langage spécifiés
+- JSON .comp.json avec name, type, variables, variants obligatoires
+- Imports SCSS avec @use '../../tokens/variables' as *;
+
+Format de test : copie l'exemple parfait ci-dessus et adapte-le.
+${'```'}
+
+## ✅ **Validation finale**
+
+L'artifact est correct si :
+1. ✅ L'analyse dit "X fichiers détectés, Y composants"
+2. ✅ L'import dit "X fichiers créés avec succès"
+3. ✅ Aucune erreur dans les logs de build
+
+**Si une de ces étapes échoue, l'artifact est malformé.**
 
 ## 📊 **Composants disponibles dans ce projet**
 
