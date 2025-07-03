@@ -200,7 +200,7 @@ async function createProjectStructure(frameworkKey, framework, options) {
   
   // 4. Main SCSS dans src/app/
   const mainScss = `// Point d'entrée CSS du projet
-@forward '_generated';
+@forward '../_generated';
 
 // Styles custom du projet
 body {
